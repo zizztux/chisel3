@@ -120,6 +120,31 @@ abstract class Data(dirArg: Direction) extends HasId {
   def toBits(): UInt = Cat(this.flatten.reverse)
 }
 
+// This is pretty much a duplication of Option[], but does the implicit
+// conversion in a way that's limited to uses in Chisel.
+abstract class Optionable[+T] {
+  def get: T
+  def empty: Boolean
+}
+
+object Optionable {
+  implicit def apply[A, B](from: A)(implicit f: (A) => B): Optionable[B] = {
+    new OptSome[B](from)
+  }
+}
+
+class OptSome[T](value: T) extends Optionable[T] {
+  def get: T = value
+  def empty: Boolean = false
+}
+
+object OptNone extends Optionable[Nothing] {
+  def get: Nothing = {
+    throw new NullPointerException("get empty Optionable")
+  }
+  def empty: Boolean = true
+}
+
 object Wire {
   def apply[T <: Data](t: T = null, init: T = null): T = {
     val x = Reg.makeType(t, null.asInstanceOf[T], init)
@@ -151,15 +176,31 @@ object Reg {
     * @param init: initialization value on reset (or empty for uninitialized,
     * where the register value persists across a reset)
     */
-  def apply[T <: Data](t: T = null, next: T = null, init: T = null): T = {
+  def apply[T <: Data](t: Optionable[T] = OptNone,
+      next: Optionable[T] = OptNone,
+      init: Optionable[T] = OptNone): T = {
     // REVIEW TODO: rewrite this in a less brittle way, perhaps also in a way
     // that doesn't need two implementations of apply()
-    val x = makeType(t, next, init)
+    val x = if (!t.empty) {
+      t.get.cloneType
+    } else if (!next.empty) {
+      next.get.cloneTypeWidth(Width())
+    } else if (!init.empty) {
+      init.get.litArg match {
+        // For e.g. Reg(init=UInt(0, k)), fix the Reg's width to k
+        case Some(lit) if lit.forcedWidth => init.get.cloneType
+        case _ => init.get.cloneTypeWidth(Width())
+      }
+    } else {
+      throwException("cannot infer type")
+    }
     pushCommand(DefRegister(x, Node(x._parent.get.clock), Node(x._parent.get.reset))) // TODO multi-clock
-    if (init != null)
-      pushCommand(ConnectInit(x.lref, init.ref))
-    if (next != null) 
-      x := next
+    if (!init.empty) {
+      pushCommand(ConnectInit(x.lref, init.get.ref))
+    }
+    if (!next.empty) { 
+      x := next.get
+    }
     x
   }
   
@@ -168,7 +209,7 @@ object Reg {
     *
     * @param outType: data type for the register
     */
-  def apply[T <: Data](outType: T): T = Reg[T](outType, null.asInstanceOf[T], null.asInstanceOf[T])
+//  def apply[T <: Data](outType: T): T = Reg[T](outType, null.asInstanceOf[T], null.asInstanceOf[T])
 }
 
 object Mem {
