@@ -30,7 +30,7 @@ object BBFConst {
 }
 
 class BlackBoxFloatTester extends BasicTester {
-  val (cnt, _) = Counter(Bool(true), 4)
+  val (cnt, _) = Counter(Bool(true), 10)
   val accum = Reg(init=BBFConst(0.0))
 
   val adder = Module(new BBFAdder())
@@ -43,8 +43,8 @@ class BlackBoxFloatTester extends BasicTester {
 
   accum := adder.io.out
 
-  printf("%x    add: %x + %x => %x    mult: %x * %x => %x\n",
-      accum,
+  printf("cnt: %x     accum: %x    add: %x + %x => %x    mult: %x * %x => %x\n",
+      cnt, accum,
       adder.io.in1, adder.io.in2, adder.io.out,
       mult.io.in1, mult.io.in2, mult.io.out)
 
@@ -60,6 +60,10 @@ class BlackBoxFloatTester extends BasicTester {
   } .elsewhen (cnt === UInt(3)) {
     assert(adder.io.out === BBFConst(4))
     assert(mult.io.out === BBFConst(8))
+  }
+
+  when (cnt >= UInt(3)) {
+    // for unknown reasons, stop needs to be invoked multiple times
     stop()
   }
 }
