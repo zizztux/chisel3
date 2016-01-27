@@ -23,43 +23,54 @@ class BBFMult extends BlackBox {
   }
 }
 
-object BBFConst {
+object DConst {
   def apply(value: Double): UInt = {
     UInt(java.lang.Double.doubleToRawLongBits(value), width=64);
   }
 }
 
+object DMult {
+  def apply(op1: UInt, op2:UInt): UInt = {
+    val mult = Module(new BBFMult())
+    mult.io.in1 := op1
+    mult.io.in2 := op2
+    mult.io.out
+  }
+}
+
+object DAdd {
+  def apply(op1: UInt, op2:UInt): UInt = {
+    val mult = Module(new BBFAdder())
+    mult.io.in1 := op1
+    mult.io.in2 := op2
+    mult.io.out
+  }
+}
+
 class BlackBoxFloatTester extends BasicTester {
   val (cnt, _) = Counter(Bool(true), 10)
-  val accum = Reg(init=BBFConst(0.0))
+  val accum = Reg(init=DConst(0.0))
 
-  val adder = Module(new BBFAdder())
-  adder.io.in1 := accum
-  adder.io.in2 := BBFConst(1.0)
+  val addOut = DAdd(accum, DConst(1.0))
+  val mulOut = DMult(addOut, DConst(2.0))
 
-  val mult = Module(new BBFMult())
-  mult.io.in1 := adder.io.out
-  mult.io.in2 := BBFConst(2.0)
+  accum := addOut
 
-  accum := adder.io.out
-
-  printf("cnt: %x     accum: %x    add: %x + %x => %x    mult: %x * %x => %x\n",
-      cnt, accum,
-      adder.io.in1, adder.io.in2, adder.io.out,
-      mult.io.in1, mult.io.in2, mult.io.out)
+  printf("cnt: %x     accum: %x    add: %x    mult: %x\n",
+      cnt, accum, addOut, mulOut)
 
   when (cnt === UInt(0)) {
-    assert(adder.io.out === BBFConst(1))
-    assert(mult.io.out === BBFConst(2))
+    assert(addOut === DConst(1))
+    assert(mulOut === DConst(2))
   } .elsewhen (cnt === UInt(1)) {
-    assert(adder.io.out === BBFConst(2))
-    assert(mult.io.out === BBFConst(4))
+    assert(addOut === DConst(2))
+    assert(mulOut === DConst(4))
   } .elsewhen (cnt === UInt(2)) {
-    assert(adder.io.out === BBFConst(3))
-    assert(mult.io.out === BBFConst(6))
+    assert(addOut === DConst(3))
+    assert(mulOut === DConst(6))
   } .elsewhen (cnt === UInt(3)) {
-    assert(adder.io.out === BBFConst(4))
-    assert(mult.io.out === BBFConst(8))
+    assert(addOut === DConst(4))
+    assert(mulOut === DConst(8))
   }
 
   when (cnt >= UInt(3)) {
