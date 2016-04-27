@@ -8,30 +8,36 @@ private class Emitter(circuit: Circuit) {
 
   private def emitPort(e: Port): String =
     s"${e.dir} ${e.id.getRef.name} : ${e.id.toType}"
-  private def emit(e: Command, ctx: Component): String = e match {
-    case e: DefPrim[_] => s"node ${e.name} = ${e.op.name}(${e.args.map(_.fullName(ctx)).reduce(_ + ", " + _)})"
-    case e: DefWire => s"wire ${e.name} : ${e.id.toType}"
-    case e: DefReg => s"reg ${e.name} : ${e.id.toType}, ${e.clock.fullName(ctx)}"
-    case e: DefRegInit => s"reg ${e.name} : ${e.id.toType}, ${e.clock.fullName(ctx)} with : (reset => (${e.reset.fullName(ctx)}, ${e.init.fullName(ctx)}))"
-    case e: DefMemory => s"cmem ${e.name} : ${e.t.toType}[${e.size}]"
-    case e: DefSeqMemory => s"smem ${e.name} : ${e.t.toType}[${e.size}]"
-    case e: DefMemPort[_] => s"${e.dir} mport ${e.name} = ${e.source.fullName(ctx)}[${e.index.fullName(ctx)}], ${e.clock.fullName(ctx)}"
-    case e: Connect => s"${e.loc.fullName(ctx)} <= ${e.exp.fullName(ctx)}"
-    case e: BulkConnect => s"${e.loc1.fullName(ctx)} <- ${e.loc2.fullName(ctx)}"
-    case e: Stop => s"stop(${e.clk.fullName(ctx)}, UInt<1>(1), ${e.ret})"
-    case e: Printf => s"""printf(${e.clk.fullName(ctx)}, UInt<1>(1), "${e.format}"${e.ids.map(_.fullName(ctx)).fold(""){_ + ", " + _}})"""
-    case e: DefInvalid => s"${e.arg.fullName(ctx)} is invalid"
-    case e: DefInstance => {
-      val modName = moduleMap.get(e.id.name).get
-      s"inst ${e.name} of $modName"
+  private def emit(e: Command, ctx: Component): String = {
+    val sourceLocator = e.sourceLocator match {
+      case Some(loc) => s"@[$loc] "
+      case None => ""
     }
+    e match {
+      case e: DefPrim[_] => s"${sourceLocator}node ${e.name} = ${e.op.name}(${e.args.map(_.fullName(ctx)).reduce(_ + ", " + _)})"
+      case e: DefWire => s"${sourceLocator}wire ${e.name} : ${e.id.toType}"
+      case e: DefReg => s"${sourceLocator}reg ${e.name} : ${e.id.toType}, ${e.clock.fullName(ctx)}"
+      case e: DefRegInit => s"${sourceLocator}reg ${e.name} : ${e.id.toType}, ${e.clock.fullName(ctx)} with : (reset => (${e.reset.fullName(ctx)}, ${e.init.fullName(ctx)}))"
+      case e: DefMemory => s"${sourceLocator}cmem ${e.name} : ${e.t.toType}[${e.size}]"
+      case e: DefSeqMemory => s"${sourceLocator}smem ${e.name} : ${e.t.toType}[${e.size}]"
+      case e: DefMemPort[_] => s"${sourceLocator}${e.dir} mport ${e.name} = ${e.source.fullName(ctx)}[${e.index.fullName(ctx)}], ${e.clock.fullName(ctx)}"
+      case e: Connect => s"${sourceLocator}${e.loc.fullName(ctx)} <= ${e.exp.fullName(ctx)}"
+      case e: BulkConnect => s"${sourceLocator}${e.loc1.fullName(ctx)} <- ${e.loc2.fullName(ctx)}"
+      case e: Stop => s"${sourceLocator}stop(${e.clk.fullName(ctx)}, UInt<1>(1), ${e.ret})"
+      case e: Printf => s"""${sourceLocator}printf(${e.clk.fullName(ctx)}, UInt<1>(1), "${e.format}"${e.ids.map(_.fullName(ctx)).fold(""){_ + ", " + _}})"""
+      case e: DefInvalid => s"${sourceLocator}${e.arg.fullName(ctx)} is invalid"
+      case e: DefInstance => {
+        val modName = moduleMap.get(e.id.name).get
+        s"${sourceLocator}inst ${e.name} of $modName"
+      }
 
-    case w: WhenBegin =>
-      indent()
-      s"when ${w.pred.fullName(ctx)} :"
-    case _: WhenEnd =>
-      unindent()
-      "skip"
+      case w: WhenBegin =>
+        indent()
+        s"${sourceLocator}when ${w.pred.fullName(ctx)} :"
+      case _: WhenEnd =>
+        unindent()
+        "skip"
+    }
   }
 
   // Map of Module FIRRTL definition to FIRRTL name, if it has been emitted already.

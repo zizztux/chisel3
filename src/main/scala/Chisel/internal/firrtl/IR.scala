@@ -142,7 +142,16 @@ object MemPortDirection {
   object INFER extends MemPortDirection("infer")
 }
 
-abstract class Command
+/** An object containing all source location information that is to be passed to FIRRTL.
+  * TODO: perhaps expand with multiple layers of source information to allow debugging of library calls.
+  */
+private[Chisel] sealed case class SourceLocator(filename: String, line: Int, col: Int, sourceLine: String) {
+  override def toString = s"${line}:${col} ${sourceLine}"
+}
+
+abstract class Command {
+  def sourceLocator: Option[SourceLocator] = None
+}
 abstract class Definition extends Command {
   def id: HasId
   def name: String = id.getRef.name
