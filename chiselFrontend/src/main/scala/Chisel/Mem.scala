@@ -29,7 +29,10 @@ sealed abstract class MemBase[T <: Data](t: T, val length: Int) extends HasId wi
   /** Creates a read accessor into the memory with static addressing. See the
     * class documentation of the memory for more detailed information.
     */
-  def apply(idx: Int): T = apply(UInt(idx))
+  def apply(idx: Int): T = {
+    require(idx < length)
+    apply(UInt(idx))
+  }
 
   /** Creates a read/write accessor into the memory with dynamic addressing.
     * See the class documentation of the memory for more detailed information.
@@ -72,8 +75,10 @@ sealed abstract class MemBase[T <: Data](t: T, val length: Int) extends HasId wi
       when (cond) { port := datum }
   }
 
-  private def makePort(idx: UInt, dir: MemPortDirection): T =
-    pushCommand(DefMemPort(t.cloneType, Node(this), dir, idx.ref, Node(idx._parent.get.clock))).id
+  private def makePort(idx: UInt, dir: MemPortDirection): T = {
+    val i = Vec.truncateIndex(idx, length)
+    pushCommand(DefMemPort(t.cloneType, Node(this), dir, i.ref, Node(i._parent.get.clock))).id
+  }
 }
 
 /** A combinational-read, sequential-write memory.

@@ -83,6 +83,15 @@ object Vec {
     * element
     */
   def fill[T <: Data](n: Int)(gen: => T): Vec[T] = apply(Seq.fill(n)(gen))
+
+  /** Truncate an index to implement modulo-power-of-2 addressing. */
+  private[Chisel] def truncateIndex(idx: UInt, n: Int): UInt = {
+    val w = BigInt(n-1).bitLength
+    if (n <= 1) UInt(0)
+    else if (idx.width.known && idx.width.get <= w) idx
+    else if (idx.width.known) idx(w-1,0)
+    else Wire(UInt(width = w), init = idx)
+  }
 }
 
 /** A vector (array) of [[Data]] elements. Provides hardware versions of various
@@ -135,7 +144,7 @@ sealed class Vec[T <: Data] private (gen: => T, val length: Int)
     */
   def apply(idx: UInt): T = {
     val x = gen
-    x.setRef(this, idx)
+    x.setRef(this, Vec.truncateIndex(idx, length))
     x
   }
 
