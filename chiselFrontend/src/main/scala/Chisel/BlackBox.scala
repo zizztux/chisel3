@@ -23,7 +23,7 @@ abstract class BlackBox extends Module {
   // The body of a BlackBox is empty, the real logic happens in firrtl/Emitter.scala
   // Bypass standard clock, reset, io port declaration by flattening io
   // TODO(twigg): ? Really, overrides are bad, should extend BaseModule....
-  override private[Chisel] def ports = io.elements.toSeq
+  /* override private[Chisel] def ports = io.elements.toSeq
 
   // Do not do reflective naming of internal signals, just name io
   override private[Chisel] def setRefs(): this.type = {
@@ -50,5 +50,5 @@ abstract class BlackBox extends Module {
 
   // Using null is horrible but these signals SHOULD NEVER be used:
   override val clock = null
-  override val reset = null
+  override val reset = null */
 }
