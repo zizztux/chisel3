@@ -85,27 +85,37 @@ lazy val coreMacros = (project in file("coreMacros")).
     libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value
   )
 
-lazy val chiselFrontend = (project in file("chiselFrontend")).
+lazy val chiselCore = (project in file("chiselCore")).
   settings(commonSettings: _*).
   settings(
     libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value
   ).
   dependsOn(coreMacros)
 
+lazy val chiselFrontend = (project in file("chiselFrontend")).
+  settings(commonSettings: _*).
+  settings(
+    libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value
+  ).
+  dependsOn(chiselCore)
+
 lazy val chisel = (project in file(".")).
   settings(commonSettings: _*).
   settings(chiselSettings: _*).
   dependsOn(coreMacros).
+  dependsOn(chiselCore).
   dependsOn(chiselFrontend).
   settings(
     // Include macro classes, resources, and sources main jar.
     mappings in (Compile, packageBin) <++= mappings in (coreMacros, Compile, packageBin),
     mappings in (Compile, packageSrc) <++= mappings in (coreMacros, Compile, packageSrc),
+    mappings in (Compile, packageBin) <++= mappings in (chiselCore, Compile, packageBin),
+    mappings in (Compile, packageSrc) <++= mappings in (chiselCore, Compile, packageSrc),
     mappings in (Compile, packageBin) <++= mappings in (chiselFrontend, Compile, packageBin),
     mappings in (Compile, packageSrc) <++= mappings in (chiselFrontend, Compile, packageSrc)
   )
 
 // This is ugly. There must be a better way.
-publish <<= (publish) dependsOn (publish in coreMacros, publish in chiselFrontend)
+publish <<= (publish) dependsOn (publish in coreMacros, publish in chiselCore, publish in chiselFrontend)
 
-publishLocal <<= (publishLocal) dependsOn (publishLocal in coreMacros, publishLocal in chiselFrontend)
+publishLocal <<= (publishLocal) dependsOn (publishLocal in coreMacros, publishLocal in chiselCore, publishLocal in chiselFrontend)
