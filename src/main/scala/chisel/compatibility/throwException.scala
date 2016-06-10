@@ -1,6 +1,6 @@
 // See LICENSE for license details.
 
-package chisel.compatibility
+package chiselCompatibility
 
 import chisel._
 

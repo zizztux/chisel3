@@ -1,4 +1,4 @@
-package chisel.compatibility
+package chiselCompatibility
 
 import chisel.core._
 

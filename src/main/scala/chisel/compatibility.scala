@@ -56,11 +56,11 @@ package object Chisel {
 
   type BackendCompilationUtilities = chisel.BackendCompilationUtilities
   val Driver = chisel.Driver
-  type FileSystemUtilities = chisel.compatibility.FileSystemUtilities
+  type FileSystemUtilities = chiselCompatibility.FileSystemUtilities
   val ImplicitConversions = chisel.util.ImplicitConversions
-  val chiselMain = chisel.compatibility.chiselMain
-  val throwException = chisel.compatibility.throwException
-  val debug = chisel.compatibility.debug
+  val chiselMain = chiselCompatibility.chiselMain
+  val throwException = chiselCompatibility.throwException
+  val debug = chiselCompatibility.debug
 
   object testers {
     type BasicTester = chisel.testers.BasicTester
