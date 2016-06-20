@@ -97,7 +97,7 @@ abstract class Data extends HasId {
       MonoConnect.connect(sourceInfo, this, that, Builder.forcedModule)
     } catch {
       case MonoConnect.MonoConnectException(message) =>
-        throw new Exception(
+        throwException(
           s"Connection between sink ($this) and source ($that) failed @$message"
         )
     }
@@ -109,7 +109,7 @@ abstract class Data extends HasId {
       BiConnect.connect(sourceInfo, this, that, Builder.forcedModule)
     } catch {
       case BiConnect.BiConnectException(message) =>
-        throw new Exception(
+        throwException(
           s"Connection between left ($this) and source ($that) failed @$message"
         )
     }
