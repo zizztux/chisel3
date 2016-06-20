@@ -65,7 +65,7 @@ sealed abstract class Bits(dirArg: Direction, width: Width, override val litArg:
       Builder.error(s"Negative bit indices are illegal (got $x)")
     }
     if (isLit()) {
-      Bool(((litValue() >> x.toInt) & 1) == 1)
+      Bool.Lit(((litValue() >> x.toInt) & 1) == 1)
     } else {
       pushOp(DefPrim(sourceInfo, Bool(), BitsExtractOp, this.ref, ILit(x), ILit(x)))
     }
@@ -106,7 +106,7 @@ sealed abstract class Bits(dirArg: Direction, width: Width, override val litArg:
     }
     val w = x - y + 1
     if (isLit()) {
-      UInt((litValue >> y) & ((BigInt(1) << w) - 1), w)
+      UInt.Lit((litValue >> y) & ((BigInt(1) << w) - 1), w)
     } else {
       pushOp(DefPrim(sourceInfo, UInt(width = w), BitsExtractOp, this.ref, ILit(x), ILit(y)))
     }
@@ -363,7 +363,7 @@ sealed class UInt private[Chisel] (dir: Direction, width: Width, lit: Option[ULi
   private[Chisel] def toType = s"UInt$width"
 
   override private[Chisel] def fromInt(value: BigInt, width: Int): this.type =
-    UInt(value, width).asInstanceOf[this.type]
+    UInt.Lit(value, width).asInstanceOf[this.type]
 
   override def := (that: Data)(implicit sourceInfo: SourceInfo): Unit = that match {
     case _: UInt => this connect that
@@ -374,8 +374,8 @@ sealed class UInt private[Chisel] (dir: Direction, width: Width, lit: Option[ULi
   final def unary_- (): UInt = macro SourceInfoTransform.noArg
   final def unary_-% (): UInt = macro SourceInfoTransform.noArg
 
-  def do_unary_- (implicit sourceInfo: SourceInfo) : UInt = UInt(0) - this
-  def do_unary_-% (implicit sourceInfo: SourceInfo): UInt = UInt(0) -% this
+  def do_unary_- (implicit sourceInfo: SourceInfo) : UInt = UInt.Lit(0) - this
+  def do_unary_-% (implicit sourceInfo: SourceInfo): UInt = UInt.Lit(0) -% this
 
   override def do_+ (that: UInt)(implicit sourceInfo: SourceInfo): UInt = this +% that
   override def do_- (that: UInt)(implicit sourceInfo: SourceInfo): UInt = this -% that
@@ -423,8 +423,8 @@ sealed class UInt private[Chisel] (dir: Direction, width: Width, lit: Option[ULi
   final def andR(): Bool = macro SourceInfoTransform.noArg
   final def xorR(): Bool = macro SourceInfoTransform.noArg
 
-  def do_orR(implicit sourceInfo: SourceInfo): Bool = this != UInt(0)
-  def do_andR(implicit sourceInfo: SourceInfo): Bool = ~this === UInt(0)
+  def do_orR(implicit sourceInfo: SourceInfo): Bool = this != UInt.Lit(0)
+  def do_andR(implicit sourceInfo: SourceInfo): Bool = ~this === UInt.Lit(0)
   def do_xorR(implicit sourceInfo: SourceInfo): Bool = redop(sourceInfo, XorReduceOp)
 
   override def do_< (that: UInt)(implicit sourceInfo: SourceInfo): Bool = compop(sourceInfo, LessOp, that)
@@ -442,7 +442,7 @@ sealed class UInt private[Chisel] (dir: Direction, width: Width, lit: Option[ULi
 
   final def unary_! () : Bool = macro SourceInfoTransform.noArg
 
-  def do_unary_! (implicit sourceInfo: SourceInfo) : Bool = this === Bits(0)
+  def do_unary_! (implicit sourceInfo: SourceInfo) : Bool = this === UInt.Lit(0)
 
   override def do_<< (that: Int)(implicit sourceInfo: SourceInfo): UInt =
     binop(sourceInfo, UInt(this.width + that), ShiftLeftOp, that)
@@ -460,7 +460,7 @@ sealed class UInt private[Chisel] (dir: Direction, width: Width, lit: Option[ULi
   final def bitSet(off: UInt, dat: Bool): UInt = macro UIntTransform.bitset
 
   def do_bitSet(off: UInt, dat: Bool)(implicit sourceInfo: SourceInfo): UInt = {
-    val bit = UInt(1, 1) << off
+    val bit = UInt.Lit(1, 1) << off
     Mux(dat, this | bit, ~(~this | bit))
   }
 
@@ -545,13 +545,13 @@ sealed class SInt private (dir: Direction, width: Width, lit: Option[SLit] = Non
   }
 
   override private[Chisel] def fromInt(value: BigInt, width: Int): this.type =
-    SInt(value, width).asInstanceOf[this.type]
+    SInt.Lit(value, width).asInstanceOf[this.type]
 
   final def unary_- (): SInt = macro SourceInfoTransform.noArg
   final def unary_-% (): SInt = macro SourceInfoTransform.noArg
 
-  def unary_- (implicit sourceInfo: SourceInfo): SInt = SInt(0) - this
-  def unary_-% (implicit sourceInfo: SourceInfo): SInt = SInt(0) -% this
+  def unary_- (implicit sourceInfo: SourceInfo): SInt = SInt.Lit(0) - this
+  def unary_-% (implicit sourceInfo: SourceInfo): SInt = SInt.Lit(0) -% this
 
   /** add (default - no growth) operator */
   override def do_+ (that: SInt)(implicit sourceInfo: SourceInfo): SInt =
@@ -673,7 +673,7 @@ sealed class Bool(dir: Direction, lit: Option[ULit] = None) extends UInt(dir, Wi
 
   override private[Chisel] def fromInt(value: BigInt, width: Int): this.type = {
     require((value == 0 || value == 1) && width == 1)
-    Bool(value == 1).asInstanceOf[this.type]
+    Bool.Lit(value == 1).asInstanceOf[this.type]
   }
 
   // REVIEW TODO: Why does this need to exist and have different conventions
@@ -714,6 +714,12 @@ object Bool {
   /** Creates Bool literal.
    */
   def apply(x: Boolean): Bool = new Bool(NO_DIR, Some(ULit(if (x) 1 else 0, Width(1))))
+  def Lit(x: Boolean): Bool = {
+    val result = new Bool(Some(ULit(if (x) 1 else 0, Width(1))))
+    // Bind result to being an Literal
+    result.binding = LitBinding()
+    result
+  }
 }
 
 object Mux {
@@ -725,7 +731,7 @@ object Mux {
     * @param alt the value chosen when `cond` is false
     * @example
     * {{{
-    * val muxOut = Mux(data_in === UInt(3), UInt(3, 4), UInt(0, 4))
+    * val muxOut = Mux(data_in === 3.asUInt, 3.asUInt(4), 0.asUInt(4))
     * }}}
     */
   def apply[T <: Data](cond: Bool, con: T, alt: T): T = macro MuxTransform.apply[T]
