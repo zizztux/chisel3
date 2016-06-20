@@ -224,7 +224,7 @@ sealed class Clock extends Element(Width(1)) {
   private[Chisel] def toType = "Clock"
 
   override def connect (that: Data)(implicit sourceInfo: SourceInfo): Unit = that match {
-    case _: Clock => this connect that
-    case _ => this badConnect that
+    case _: Clock => super.connect(that)(sourceInfo)
+    case _ => super.badConnect(that)(sourceInfo)
   }
 }
