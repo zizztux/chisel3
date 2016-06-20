@@ -10,6 +10,8 @@ import internal.sourceinfo.{SourceInfo, UnlocatableSourceInfo}
 object Reg {
   private[Chisel] def makeType[T <: Data](t: T = null, next: T = null, init: T = null): T = {
     if (t ne null) {
+      Binding.checkUnbound(t, s"t ($t) must be unbound Type. Try using newType?")
+//      t.newType
       t.cloneType
     } else if (next ne null) {
       next.cloneTypeWidth(Width())
@@ -58,14 +60,21 @@ object Reg {
     // system improves, this may be changed.
     val x = makeType(t, next, init)
     val clock = Node(x._parent.get.clock) // TODO multi-clock
+
+    // Bind each element of x to being a Reg
+    Binding.bind(x, RegBinder(Builder.forcedModule), "Error: t")
+
     if (init == null) {
       pushCommand(DefReg(sourceInfo, x, clock))
     } else {
+      Binding.checkSynthesizable(init, s"'init' ($init)")
       pushCommand(DefRegInit(sourceInfo, x, clock, Node(x._parent.get.reset), init.ref))
     }
     if (next != null) {
+      Binding.checkSynthesizable(next, s"'next' ($next)")
       x := next
     }
+
     x
   }
 }

@@ -100,11 +100,17 @@ private[Chisel] object Builder {
   def globalNamespace: Namespace = dynamicContext.globalNamespace
   def components: ArrayBuffer[Component] = dynamicContext.components
 
+  // TODO(twigg): Ideally, binding checks and new bindings would all occur here
+  // However, rest of frontend can't support this yet.
   def pushCommand[T <: Command](c: T): T = {
     dynamicContext.currentModule.foreach(_._commands += c)
     c
   }
-  def pushOp[T <: Data](cmd: DefPrim[T]): T = pushCommand(cmd).id
+  def pushOp[T <: Data](cmd: DefPrim[T]): T = {
+    // Bind each element of the returned Data to being a Op
+    Binding.bind(cmd.id, OpBinder(forcedModule), "Error: During op creation, fresh result")
+    pushCommand(cmd).id
+  }
 
   def errors: ErrorLog = dynamicContext.errors
   def error(m: => String): Unit = errors.error(m)
