@@ -71,7 +71,7 @@ abstract class Data(dirArg: Direction) extends HasId {
   def litValue(): BigInt = litArg.get.num
   def isLit(): Boolean = litArg.isDefined
 
-  def width: Width
+  private[Chisel] def width: Width
   final def getWidth: Int = width.get
 
   // While this being in the Data API doesn't really make sense (should be in

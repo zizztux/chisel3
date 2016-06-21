@@ -16,7 +16,7 @@ import internal.sourceinfo.{SourceInfo, DeprecatedSourceInfo, VecTransform, Sour
   */
 sealed abstract class Aggregate(dirArg: Direction) extends Data(dirArg) {
   private[Chisel] def cloneTypeWidth(width: Width): this.type = cloneType
-  def width: Width = flatten.map(_.width).reduce(_ + _)
+  private[Chisel] def width: Width = flatten.map(_.width).reduce(_ + _)
 }
 
 object Vec {

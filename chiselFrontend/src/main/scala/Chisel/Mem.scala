@@ -93,7 +93,7 @@ sealed abstract class MemBase[T <: Data](t: T, val length: Int) extends HasId wi
   * @note when multiple conflicting writes are performed on a Mem element, the
   * result is undefined (unlike Vec, where the last assignment wins)
   */
-sealed class Mem[T <: Data](t: T, length: Int) extends MemBase(t, length)
+final class Mem[T <: Data] private (t: T, length: Int) extends MemBase(t, length)
 
 object SeqMem {
   @deprecated("SeqMem argument order should be size, t; this will be removed by the official release", "chisel3")
@@ -124,7 +124,7 @@ object SeqMem {
   * @note when multiple conflicting writes are performed on a Mem element, the
   * result is undefined (unlike Vec, where the last assignment wins)
   */
-sealed class SeqMem[T <: Data](t: T, n: Int) extends MemBase[T](t, n) {
+final class SeqMem[T <: Data] private (t: T, n: Int) extends MemBase[T](t, n) {
   def read(addr: UInt, enable: Bool): T = {
     implicit val sourceInfo = UnlocatableSourceInfo
     val a = Wire(UInt())
