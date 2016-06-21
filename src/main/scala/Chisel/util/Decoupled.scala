@@ -64,7 +64,6 @@ class DeqIO[T <: Data](gen: T) extends DecoupledIO(gen) with Flipped
   def init(): Unit = {
     ready := Bool(false)
   }
-  override def cloneType: this.type = { new DeqIO(gen).asInstanceOf[this.type]; }
 }
 
 /** An I/O bundle for dequeuing data with valid/ready handshaking */
@@ -174,7 +173,7 @@ extends Module(override_reset=override_reset) {
 object Queue
 {
   def apply[T <: Data](enq: DecoupledIO[T], entries: Int = 2, pipe: Boolean = false): DecoupledIO[T]  = {
-    val q = Module(new Queue(enq.bits.cloneType, entries, pipe))
+    val q = Module(new Queue(enq.bits.newType, entries, pipe))
     q.io.enq.valid := enq.valid // not using <> so that override is allowed
     q.io.enq.bits := enq.bits
     enq.ready := q.io.enq.ready

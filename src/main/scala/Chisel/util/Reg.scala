@@ -23,12 +23,12 @@ object RegInit {
 object RegEnable
 {
   def apply[T <: Data](updateData: T, enable: Bool): T = {
-    val r = Reg(updateData)
+    val r = Reg(updateData.newType)
     when (enable) { r := updateData }
     r
   }
   def apply[T <: Data](updateData: T, resetData: T, enable: Bool): T = {
-    val r = RegInit(resetData)
+    val r = RegInit(resetData.newType)
     when (enable) { r := updateData }
     r
   }

@@ -8,21 +8,20 @@ import internal.firrtl._
 import internal.sourceinfo.{SourceInfo, UnlocatableSourceInfo}
 
 object Reg {
-  private[Chisel] def makeType[T <: Data](t: T = null, next: T = null, init: T = null): T = {
+  private[Chisel] def makeType[T <: Data](t: T = null, next: T = null, init: T = null): T =
     if (t ne null) {
-      t.cloneType
+      Binding.checkUnbound(t, s"t ($t) must be unbound Type. Try using newType?")
+      t.newType
     } else if (next ne null) {
       next.cloneTypeWidth(Width())
     } else if (init ne null) {
       init.litArg match {
-        // For e.g. Reg(init=UInt(0, k)), fix the Reg's width to k
-        case Some(lit) if lit.forcedWidth => init.cloneType
+        // For e.g. Reg(init=0.asUInt(k)), fix the Reg's width to k
+        case Some(lit) if lit.forcedWidth => init.newType
         case _ => init.cloneTypeWidth(Width())
       }
-    } else {
-      throwException("cannot infer type")
     }
-  }
+    else throw new Exception("cannot infer type")
 
   /** Creates a register with optional next and initialization values.
     *

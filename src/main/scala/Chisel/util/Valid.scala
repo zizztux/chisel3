@@ -9,7 +9,7 @@ package Chisel
 class ValidIO[+T <: Data](gen2: T) extends Bundle
 {
   val valid = Bool(OUTPUT)
-  val bits = gen2.cloneType.asOutput
+  val bits = gen2.newType.asOutput
   def fire(dummy: Int = 0): Bool = valid
   override def cloneType: this.type = new ValidIO(gen2).asInstanceOf[this.type]
 }

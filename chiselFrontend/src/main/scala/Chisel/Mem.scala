@@ -19,9 +19,11 @@ object Mem {
     * @param t data type of memory element
     */
   def apply[T <: Data](size: Int, t: T): Mem[T] = macro MemTransform.apply[T]
-
   def do_apply[T <: Data](size: Int, t: T)(implicit sourceInfo: SourceInfo): Mem[T] = {
-    val mt  = t.cloneType
+    val mt  = t.newType
+    Binding.bind(mt, NoDirectionBinder, "Error: fresh t")
+    // TODO(twigg): Remove need for this Binding
+
     val mem = new Mem(mt, size)
     pushCommand(DefMemory(sourceInfo, mem, mt, size)) // TODO multi-clock
     mem
@@ -107,7 +109,10 @@ object SeqMem {
   def apply[T <: Data](size: Int, t: T): SeqMem[T] = macro MemTransform.apply[T]
 
   def do_apply[T <: Data](size: Int, t: T)(implicit sourceInfo: SourceInfo): SeqMem[T] = {
-    val mt  = t.cloneType
+    val mt  = t.newType
+    Binding.bind(mt, NoDirectionBinder, "Error: fresh t")
+    // TODO(twigg): Remove need for this Binding
+
     val mem = new SeqMem(mt, size)
     pushCommand(DefSeqMemory(sourceInfo, mem, mt, size)) // TODO multi-clock
     mem

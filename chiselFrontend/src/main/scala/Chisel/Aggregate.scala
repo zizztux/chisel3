@@ -24,10 +24,10 @@ object Vec {
     *
     * @note elements are NOT assigned by default and have no value
     */
-  def apply[T <: Data](n: Int, gen: T): Vec[T] = new Vec(gen.cloneType, n)
+  def apply[T <: Data](n: Int, gen: T): Vec[T] = new Vec(gen, n)
 
   @deprecated("Vec argument order should be size, t; this will be removed by the official release", "chisel3")
-  def apply[T <: Data](gen: T, n: Int): Vec[T] = new Vec(gen.cloneType, n)
+  def apply[T <: Data](gen: T, n: Int): Vec[T] = Vec(n, gen)
 
   /** Creates a new [[Vec]] composed of elements of the input Seq of [[Data]]
     * nodes.
@@ -344,7 +344,7 @@ class Bundle extends Aggregate(NO_DIR) {
   private[Chisel] override def _onModuleClose: Unit = // scalastyle:ignore method.name
     for ((name, elt) <- namedElts) { elt.setRef(this, _namespace.name(name)) }
 
-  override def cloneType : this.type = {
+  override protected def cloneType : this.type = {
     // If the user did not provide a cloneType method, try invoking one of
     // the following constructors, not all of which necessarily exist:
     // - A zero-parameter constructor
@@ -373,5 +373,5 @@ class Bundle extends Aggregate(NO_DIR) {
 }
 
 private[Chisel] object Bundle {
-  val keywords = List("flip", "asInput", "asOutput", "cloneType", "toBits")
+  val keywords = List("flip", "asInput", "asOutput", "cloneType", "toBits", "newType")
 }

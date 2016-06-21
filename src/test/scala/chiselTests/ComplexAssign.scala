@@ -9,7 +9,7 @@ import Chisel.testers.BasicTester
 
 class Complex[T <: Data](val re: T, val im: T) extends Bundle {
   override def cloneType: this.type =
-    new Complex(re.cloneType, im.cloneType).asInstanceOf[this.type]
+    new Complex(re.newType, im.newType).asInstanceOf[this.type]
 }
 
 class ComplexAssign(w: Int) extends Module {

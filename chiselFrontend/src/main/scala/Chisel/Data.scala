@@ -59,7 +59,6 @@ abstract class Data(dirArg: Direction) extends HasId {
     pushCommand(BulkConnect(sourceInfo, this.lref, that.lref))
   private[Chisel] def lref: Node = Node(this)
   private[Chisel] def ref: Arg = if (isLit) litArg.get else lref
-  private[Chisel] def cloneTypeWidth(width: Width): this.type
   private[Chisel] def toType: String
 
   def := (that: Data)(implicit sourceInfo: SourceInfo): Unit = this badConnect that
@@ -119,6 +118,19 @@ abstract class Data(dirArg: Direction) extends HasId {
     */
   @deprecated("Use asBits, which makes the reinterpret cast more explicit and actually returns Bits", "chisel3")
   def toBits(): UInt = SeqUtils.do_asUInt(this.flatten)(DeprecatedSourceInfo)
+
+  //TODO(twigg): Remove cloneTypeWidth, it doesn't compose for aggregates....
+  private[Chisel] def cloneTypeWidth(width: Width): this.type
+
+  protected def cloneType: this.type
+  final def newType: this.type = {
+    val clone = this.cloneType
+    //TODO(twigg): Do recursively for better error messages
+    for((clone_elem, source_elem) <- clone.allElements zip this.allElements) {
+      clone_elem.binding = UnboundBinding(source_elem.binding.direction)
+    }
+    clone
+  }
 }
 
 object Wire {
