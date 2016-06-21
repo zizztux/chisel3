@@ -114,7 +114,7 @@ extends Module(override_reset=override_reset) {
   val ram = Mem(entries, gen)
   val enq_ptr = Counter(entries)
   val deq_ptr = Counter(entries)
-  val maybe_full = Reg(init=Bool(false))
+  val maybe_full = Reg(init=false.asBool)
 
   val ptr_match = enq_ptr.value === deq_ptr.value
   val empty = ptr_match && !maybe_full
@@ -138,16 +138,16 @@ extends Module(override_reset=override_reset) {
   io.deq.bits := ram(deq_ptr.value)
 
   if (flow) {
-    when (io.enq.valid) { io.deq.valid := Bool(true) }
+    when (io.enq.valid) { io.deq.valid := true.asBool }
     when (empty) {
       io.deq.bits := io.enq.bits
-      do_deq := Bool(false)
-      when (io.deq.ready) { do_enq := Bool(false) }
+      do_deq := false.asBool
+      when (io.deq.ready) { do_enq := false.asBool }
     }
   }
 
   if (pipe) {
-    when (io.deq.ready) { io.enq.ready := Bool(true) }
+    when (io.deq.ready) { io.enq.ready := true.asBool }
   }
 
   val ptr_diff = enq_ptr.value - deq_ptr.value
@@ -156,7 +156,7 @@ extends Module(override_reset=override_reset) {
   } else {
     io.count := Mux(ptr_match,
                     Mux(maybe_full,
-                      UInt(entries), UInt(0)),
+                      UInt(entries), 0.asUInt),
                     Mux(deq_ptr.value > enq_ptr.value,
                       UInt(entries) + ptr_diff, ptr_diff))
   }
