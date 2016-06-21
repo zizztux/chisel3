@@ -65,7 +65,6 @@ abstract class Data(dirArg: Direction) extends HasId {
 
   def <> (that: Data)(implicit sourceInfo: SourceInfo): Unit = this badConnect that
 
-  def cloneType: this.type
   def litArg(): Option[LitArg] = None
   def litValue(): BigInt = litArg.get.num
   def isLit(): Boolean = litArg.isDefined
