@@ -17,16 +17,16 @@ class MulLookup(val w: Int) extends Module {
     for {
       i <- 0 until 1 << w
       j <- 0 until 1 << w
-    } yield UInt(i * j, 2 * w)
+    } yield (i * j).asUInt(2 * w)
   )
   io.z := tbl(((io.x << w) | io.y))
 }
 
 class MulLookupTester(w: Int, x: Int, y: Int) extends BasicTester {
   val dut = Module(new MulLookup(w))
-  dut.io.x := UInt(x)
-  dut.io.y := UInt(y)
-  assert(dut.io.z === UInt(x * y))
+  dut.io.x := x.asUInt
+  dut.io.y := y.asUInt
+  assert(dut.io.z === (x * y).asUInt)
   stop()
 }
 

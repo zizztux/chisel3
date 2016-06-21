@@ -21,18 +21,18 @@ class GCD extends Module {
   .otherwise     { y := y -% x }
   when (io.e) { x := io.a; y := io.b }
   io.z := x
-  io.v := y === UInt(0)
+  io.v := y === 0.asUInt
 }
 
 class GCDTester(a: Int, b: Int, z: Int) extends BasicTester {
   val dut = Module(new GCD)
-  val first = Reg(init=Bool(true))
-  dut.io.a := UInt(a)
-  dut.io.b := UInt(b)
+  val first = Reg(init=true.asBool)
+  dut.io.a := a.asUInt
+  dut.io.b := b.asUInt
   dut.io.e := first
-  when(first) { first := Bool(false) }
+  when(first) { first := false.asBool }
   when(dut.io.v) {
-    assert(dut.io.z === UInt(z))
+    assert(dut.io.z === z.asUInt)
     stop()
   }
 }

@@ -491,20 +491,15 @@ private[Chisel] sealed trait UIntFactory {
   def apply(dir: Direction): UInt = apply(dir, Width())
 
   /** Create a UInt literal with inferred width. */
-  def apply(value: BigInt): UInt = apply(value, Width())
+  def Lit(value: BigInt): UInt = Lit(value, Width())
   /** Create a UInt literal with fixed width. */
-  def apply(value: BigInt, width: Int): UInt = apply(value, Width(width))
+  def Lit(value: BigInt, width: Int): UInt = Lit(value, Width(width))
   /** Create a UInt literal with inferred width. */
-  def apply(n: String): UInt = apply(parse(n), parsedWidth(n))
+  def Lit(n: String): UInt = Lit(parse(n), parsedWidth(n))
   /** Create a UInt literal with fixed width. */
-  def apply(n: String, width: Int): UInt = apply(parse(n), width)
-
-  /** Create a UInt type with specified width. */
-  def apply(width: Width): UInt = apply(NO_DIR, width)
-  /** Create a UInt port with specified width. */
-  def apply(dir: Direction, width: Width): UInt = new UInt(dir, width)
+  def Lit(n: String, width: Int): UInt = Lit(parse(n), width)
   /** Create a UInt literal with specified width. */
-  def apply(value: BigInt, width: Width): UInt = {
+  def Lit(value: BigInt, width: Width): UInt = {
     val lit = ULit(value, width)
     new UInt(NO_DIR, lit.width, Some(lit))
   }
@@ -646,16 +641,11 @@ object SInt {
   def apply(dir: Direction): SInt = apply(dir, Width())
 
   /** Create an SInt literal with inferred width. */
-  def apply(value: BigInt): SInt = apply(value, Width())
+  def Lit(value: BigInt): SInt = Lit(value, Width())
   /** Create an SInt literal with fixed width. */
-  def apply(value: BigInt, width: Int): SInt = apply(value, Width(width))
-
-  /** Create an SInt type with specified width. */
-  def apply(width: Width): SInt = new SInt(NO_DIR, width)
-  /** Create an SInt port with specified width. */
-  def apply(dir: Direction, width: Width): SInt = new SInt(dir, width)
+  def Lit(value: BigInt, width: Int): SInt = Lit(value, Width(width))
   /** Create an SInt literal with specified width. */
-  def apply(value: BigInt, width: Width): SInt = {
+  def Lit(value: BigInt, width: Width): SInt = {
     val lit = SLit(value, width)
     new SInt(NO_DIR, lit.width, Some(lit))
   }

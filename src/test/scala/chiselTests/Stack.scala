@@ -13,19 +13,19 @@ class ChiselStack(val depth: Int) extends Module {
     val dataOut = UInt(OUTPUT, 32)
   }
 
-  val stack_mem = Mem(depth, UInt(width = 32))
-  val sp        = Reg(init = UInt(0, width = log2Up(depth + 1)))
-  val out       = Reg(init = UInt(0, width = 32))
+  val stack_mem = Mem(depth, UInt(32))
+  val sp        = Reg(init = 0.asUInt(log2Up(depth + 1)))
+  val out       = Reg(init = 0.asUInt(32))
 
   when (io.en) {
-    when(io.push && (sp < UInt(depth))) {
+    when(io.push && (sp < depth.asUInt)) {
       stack_mem(sp) := io.dataIn
-      sp := sp +% UInt(1)
-    } .elsewhen(io.pop && (sp > UInt(0))) {
-      sp := sp -% UInt(1)
+      sp := sp +% 1.asUInt
+    } .elsewhen(io.pop && (sp > 0.asUInt)) {
+      sp := sp -% 1.asUInt
     }
-    when (sp > UInt(0)) {
-      out := stack_mem(sp -% UInt(1))
+    when (sp > 0.asUInt) {
+      out := stack_mem(sp -% 1.asUInt)
     }
   }
   io.dataOut := out

@@ -26,17 +26,17 @@ class Tbl(w: Int, n: Int) extends Module {
 }
 
 class TblTester(w: Int, n: Int, idxs: List[Int], values: List[Int]) extends BasicTester {
-  val (cnt, wrap) = Counter(Bool(true), idxs.size)
+  val (cnt, wrap) = Counter(true.asBool, idxs.size)
   val dut = Module(new Tbl(w, n))
-  val vvalues = Vec(values.map(UInt(_)))
-  val vidxs = Vec(idxs.map(UInt(_)))
-  val prev_idx = vidxs(cnt - UInt(1))
-  val prev_value = vvalues(cnt - UInt(1))
+  val vvalues = Vec(values.map(_.asUInt))
+  val vidxs = Vec(idxs.map(_.asUInt))
+  val prev_idx = vidxs(cnt - 1.asUInt)
+  val prev_value = vvalues(cnt - 1.asUInt)
   dut.io.wi := vidxs(cnt)
   dut.io.ri := prev_idx
-  dut.io.we := Bool(true) //TODO enSequence
+  dut.io.we := true.asBool //TODO enSequence
   dut.io.d := vvalues(cnt)
-  when (cnt > UInt(0)) {
+  when (cnt > 0.asUInt) {
     when (prev_idx === vidxs(cnt)) {
       assert(dut.io.o === vvalues(cnt))
     } .otherwise {

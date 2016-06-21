@@ -15,11 +15,11 @@ class DirectionHaver extends Module {
 }
 
 class GoodDirection extends DirectionHaver {
-  io.out := UInt(0)
+  io.out := 0.asUInt
 }
 
 class BadDirection extends DirectionHaver {
-  io.in := UInt(0)
+  io.in := 0.asUInt
 }
 
 class DirectionSpec extends ChiselPropSpec {

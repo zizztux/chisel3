@@ -24,19 +24,19 @@ class ComplexAssign(w: Int) extends Module {
     io.out.re := tmp.re
     io.out.im := tmp.im
   } .otherwise {
-    io.out.re := UInt(0)
-    io.out.im := UInt(0)
+    io.out.re := 0.asUInt
+    io.out.im := 0.asUInt
   }
 }
 
 class ComplexAssignTester(enList: List[Boolean], re: Int, im: Int) extends BasicTester {
-  val (cnt, wrap) = Counter(Bool(true), enList.size)
+  val (cnt, wrap) = Counter(true.asBool, enList.size)
   val dut = Module(new ComplexAssign(32))
-  dut.io.in.re := UInt(re)
-  dut.io.in.im := UInt(im)
-  dut.io.e := Vec(enList.map(Bool(_)))(cnt)
-  val re_correct = dut.io.out.re === Mux(dut.io.e, dut.io.in.re, UInt(0))
-  val im_correct = dut.io.out.im === Mux(dut.io.e, dut.io.in.im, UInt(0))
+  dut.io.in.re := re.asUInt
+  dut.io.in.im := im.asUInt
+  dut.io.e := Vec(enList.map(_.asBool))(cnt)
+  val re_correct = dut.io.out.re === Mux(dut.io.e, dut.io.in.re, 0.asUInt)
+  val im_correct = dut.io.out.im === Mux(dut.io.e, dut.io.in.im, 0.asUInt)
   assert(re_correct && im_correct)
   when(wrap) {
     stop()
