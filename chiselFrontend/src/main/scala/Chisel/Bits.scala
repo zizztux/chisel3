@@ -703,7 +703,6 @@ object Bool {
 
   /** Creates Bool literal.
    */
-  def apply(x: Boolean): Bool = new Bool(NO_DIR, Some(ULit(if (x) 1 else 0, Width(1))))
   def Lit(x: Boolean): Bool = {
     val result = new Bool(Some(ULit(if (x) 1 else 0, Width(1))))
     // Bind result to being an Literal
