@@ -172,11 +172,9 @@ case class Printf(sourceInfo: SourceInfo, clk: Arg, formatIn: String, ids: Seq[A
   def format: String = {
     def escaped(x: Char) = {
       require(x.toInt >= 0)
-      if (x == '"' || x == '\\') {
-        s"\\${x}"
-      } else if (x == '\n') {
-        "\\n"
-      } else {
+      if (x == '"' || x == '\\') s"\\${x}"
+      else if (x == '\n') "\\n"
+      else {
         require(x.toInt >= 32) // TODO \xNN once FIRRTL issue #59 is resolved
         x
       }

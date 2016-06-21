@@ -128,5 +128,5 @@ object Driver extends BackendCompilationUtilities {
     }
   }
 
-  def targetDir(): String = { target_dir getOrElse new File(".").getCanonicalPath }
+  def targetDir(): String = { target_dir.getOrElse(new File(".").getCanonicalPath) }
 }

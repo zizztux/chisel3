@@ -219,7 +219,8 @@ trait VecLike[T <: Data] extends collection.IndexedSeq[T] with HasId {
   /** Helper function that appends an index (literal value) to each element,
     * useful for hardware generators which output an index.
     */
-  private def indexWhereHelper(p: T => Bool) = this map p zip (0 until length).map(i => UInt(i))
+  private def indexWhereHelper(p: T => Bool) = (this map p) zip (0
+until length).map(i => UInt(i))
 
   /** Outputs the index of the first element for which p outputs true.
     */

@@ -444,6 +444,7 @@ sealed class UInt private[Chisel] (dir: Direction, width: Width, lit: Option[ULi
 
   def do_unary_! (implicit sourceInfo: SourceInfo) : Bool = this === Bits(0)
 
+  // REVIEW TODO: Can these also not be defined on Bits?
   override def do_<< (that: Int)(implicit sourceInfo: SourceInfo): UInt =
     binop(sourceInfo, UInt(this.width + that), ShiftLeftOp, that)
   override def do_<< (that: BigInt)(implicit sourceInfo: SourceInfo): UInt =

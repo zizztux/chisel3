@@ -101,11 +101,8 @@ abstract class Data(dirArg: Direction) extends HasId {
     var i = 0
     val wire = Wire(this.cloneType)
     val bits =
-      if (that.width.known && that.width.get >= wire.width.get) {
-        that
-      } else {
-        Wire(that.cloneTypeWidth(wire.width), init = that)
-      }
+      if (that.width.known && that.width.get >= wire.width.get) that
+      else Wire(that.cloneTypeWidth(wire.width), init = that)
     for (x <- wire.flatten) {
       x := bits(i + x.getWidth-1, i)
       i += x.getWidth

@@ -39,7 +39,7 @@ object assert { // scalastyle:ignore object.name
     val condStr = s"${p.source.file.name}:${p.line} ${p.lineContent.trim}"
     val apply_impl_do = symbolOf[this.type].asClass.module.info.member(TermName("apply_impl_do"))
     q"$apply_impl_do($cond, $condStr, _root_.scala.Some($message))($sourceInfo)"
-  }
+ }
 
   def apply_impl(c: Context)(cond: c.Tree)(sourceInfo: c.Tree): c.Tree = {
     import c.universe._
