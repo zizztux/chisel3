@@ -3,8 +3,10 @@
 package chiselTests
 
 import org.scalatest._
-import Chisel._
-import Chisel.testers.BasicTester
+
+import chisel3._
+import chisel3.testers.BasicTester
+import chisel3.util._
 
 class LastAssignTester() extends BasicTester {
   val cnt = Counter(2)
@@ -32,7 +34,7 @@ class MultiAssignSpec extends ChiselFlatSpec {
   "The last assignment" should "be used when multiple assignments happen" in {
     assertTesterPasses{ new LastAssignTester }
   }
-  intercept[Chisel.internal.ChiselException] {
+  intercept[chisel3.internal.ChiselException] {
 //    "Reassignments to non-wire types" should "be disallowed" in {
     assertTesterFails{ new ReassignmentTester }
   }
