@@ -1,13 +1,13 @@
 // See LICENSE for license details.
 
-package Chisel
+package chisel3.core
 
 import scala.language.experimental.macros
 
-import internal._
-import internal.Builder.pushCommand
-import internal.firrtl._
-import internal.sourceinfo.{SourceInfo, DeprecatedSourceInfo, UnlocatableSourceInfo, WireTransform, SourceInfoTransform}
+import chisel3.internal._
+import chisel3.internal.Builder.pushCommand
+import chisel3.internal.firrtl._
+import chisel3.internal.sourceinfo.{SourceInfo, DeprecatedSourceInfo, UnlocatableSourceInfo, WireTransform, SourceInfoTransform}
 
 sealed abstract class Direction(name: String) {
   override def toString: String = name
@@ -62,7 +62,7 @@ object Data {
   * The Vec check is due to the fact that flip must be factored out of the vec, ie:
   * must have flip field: Vec(UInt) instead of field: Vec(flip UInt)
   */
-  private[Chisel] def isFlipped(target: Data): Boolean = target match {
+  private[chisel3] def isFlipped(target: Data): Boolean = target match {
     case (element: Element) => element.binding.direction == Some(Direction.Input)
     case (vec: Vec[Data @unchecked]) => isFlipped(vec.sample_element)
     case (bundle: Bundle) => false
@@ -86,11 +86,11 @@ object Data {
 abstract class Data extends HasId {
   // Return ALL elements at root of this type.
   // Contasts with flatten, which returns just Bits
-  private[Chisel] def allElements: Seq[Element]
+  private[chisel3] def allElements: Seq[Element]
 
-  private[Chisel] def badConnect(that: Data)(implicit sourceInfo: SourceInfo): Unit =
+  private[core] def badConnect(that: Data)(implicit sourceInfo: SourceInfo): Unit =
     throwException(s"cannot connect ${this} and ${that}")
-  private[Chisel] def connect(that: Data)(implicit sourceInfo: SourceInfo): Unit = {
+  private[chisel3] def connect(that: Data)(implicit sourceInfo: SourceInfo): Unit = {
     Binding.checkSynthesizable(this, s"'this' ($this)")
     Binding.checkSynthesizable(that, s"'that' ($that)")
     try {
@@ -102,7 +102,7 @@ abstract class Data extends HasId {
         )
     }
   }
-  private[Chisel] def bulkConnect(that: Data)(implicit sourceInfo: SourceInfo): Unit = {
+  private[chisel3] def bulkConnect(that: Data)(implicit sourceInfo: SourceInfo): Unit = {
     Binding.checkSynthesizable(this, s"'this' ($this)")
     Binding.checkSynthesizable(that, s"'that' ($that)")
     try {
@@ -114,10 +114,10 @@ abstract class Data extends HasId {
         )
     }
   }
-  private[Chisel] def lref: Node = Node(this)
-  private[Chisel] def ref: Arg = if (isLit) litArg.get else lref
-  private[Chisel] def cloneTypeWidth(width: Width): this.type
-  private[Chisel] def toType: String
+  private[chisel3] def lref: Node = Node(this)
+  private[chisel3] def ref: Arg = if (isLit) litArg.get else lref
+  private[chisel3] def cloneTypeWidth(width: Width): this.type
+  private[chisel3] def toType: String
 
   def cloneType: this.type
   final def := (that: Data)(implicit sourceInfo: SourceInfo): Unit = this connect that
@@ -126,7 +126,7 @@ abstract class Data extends HasId {
   def litValue(): BigInt = litArg.get.num
   def isLit(): Boolean = litArg.isDefined
 
-  def width: Width
+  private[core] def width: Width
   final def getWidth: Int = width.get
 
   // While this being in the Data API doesn't really make sense (should be in
@@ -138,7 +138,7 @@ abstract class Data extends HasId {
   // currently don't exist (while this information may be available during
   // FIRRTL emission, it would break directionality querying from Chisel, which
   // does get used).
-  private[Chisel] def flatten: IndexedSeq[Bits]
+  private[chisel3] def flatten: IndexedSeq[Bits]
 
   /** Creates an new instance of this type, unpacking the input Bits into
     * structured data.
@@ -211,9 +211,9 @@ object Clock {
 // TODO: Document this.
 sealed class Clock extends Element(Width(1)) {
   def cloneType: this.type = Clock().asInstanceOf[this.type]
-  private[Chisel] override def flatten: IndexedSeq[Bits] = IndexedSeq()
-  private[Chisel] def cloneTypeWidth(width: Width): this.type = cloneType
-  private[Chisel] def toType = "Clock"
+  private[chisel3] override def flatten: IndexedSeq[Bits] = IndexedSeq()
+  private[core] def cloneTypeWidth(width: Width): this.type = cloneType
+  private[chisel3] def toType = "Clock"
 
   override def connect (that: Data)(implicit sourceInfo: SourceInfo): Unit = that match {
     case _: Clock => super.connect(that)(sourceInfo)

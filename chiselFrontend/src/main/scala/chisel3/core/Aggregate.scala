@@ -1,22 +1,22 @@
 // See LICENSE for license details.
 
-package Chisel
+package chisel3.core
 
 import scala.collection.immutable.ListMap
 import scala.collection.mutable.{ArrayBuffer, HashSet, LinkedHashMap}
 import scala.language.experimental.macros
 
-import internal._
-import internal.Builder.pushCommand
-import internal.firrtl._
-import internal.sourceinfo.{SourceInfo, DeprecatedSourceInfo, VecTransform, SourceInfoTransform}
+import chisel3.internal._
+import chisel3.internal.Builder.pushCommand
+import chisel3.internal.firrtl._
+import chisel3.internal.sourceinfo.{SourceInfo, DeprecatedSourceInfo, VecTransform, SourceInfoTransform}
 
 /** An abstract class for data types that solely consist of (are an aggregate
   * of) other Data objects.
   */
 sealed abstract class Aggregate extends Data {
-  private[Chisel] def cloneTypeWidth(width: Width): this.type = cloneType
-  def width: Width = flatten.map(_.width).reduce(_ + _)
+  private[core] def cloneTypeWidth(width: Width): this.type = cloneType
+  private[chisel3] def width: Width = flatten.map(_.width).reduce(_ + _)
 }
 
 object Vec {
@@ -118,13 +118,13 @@ sealed class Vec[T <: Data] private (gen: T, val length: Int)
   *
   * Needed specifically for the case when the Vec is length 0.
   */
-  private[Chisel] val sample_element: T = gen.newType
+  private[core] val sample_element: T = gen.newType
 
   // allElements current includes sample_element
   // This is somewhat weird although I think the best course of action here is
   // to deprecate allElements in favor of dispatched functions to Data or
   // a pattern matched recursive descent
-  private[Chisel] final def allElements: Seq[Element] =
+  private[chisel3] final def allElements: Seq[Element] =
     (sample_element +: self).flatMap(_.allElements)
 
   /** Strong bulk connect, assigning elements in this Vec from elements in a Seq.
@@ -182,8 +182,8 @@ sealed class Vec[T <: Data] private (gen: T, val length: Int)
   override def cloneType: this.type =
     Vec(length, gen).asInstanceOf[this.type]
 
-  private[Chisel] def toType: String = s"${sample_element.toType}[$length]"
-  private[Chisel] lazy val flatten: IndexedSeq[Bits] =
+  private[chisel3] def toType: String = s"${sample_element.toType}[$length]"
+  private[chisel3] lazy val flatten: IndexedSeq[Bits] =
     (0 until length).flatMap(i => this.apply(i).flatten)
 
   for ((elt, i) <- self zipWithIndex)
@@ -327,7 +327,7 @@ class Bundle extends Aggregate {
 
   /** Returns a list of elements in this Bundle.
     */
-  private[Chisel] lazy val namedElts = {
+  private[core] lazy val namedElts = {
     val nameMap = LinkedHashMap[String, Data]()
     val seen = HashSet[Data]()
     for (m <- getClass.getMethods.sortWith(_.getName < _.getName)) {
@@ -343,20 +343,20 @@ class Bundle extends Aggregate {
     }
     ArrayBuffer(nameMap.toSeq:_*) sortWith {case ((an, a), (bn, b)) => (a._id > b._id) || ((a eq b) && (an > bn))}
   }
-  private[Chisel] def toType = {
+  private[chisel3] def toType = {
     def eltPort(elt: Data): String = {
       val flipStr: String = if(Data.isFlipped(elt)) "flip " else ""
       s"${flipStr}${elt.getRef.name} : ${elt.toType}"
     }
     s"{${namedElts.reverse.map(e => eltPort(e._2)).mkString(", ")}}"
   }
-  private[Chisel] lazy val flatten = namedElts.flatMap(_._2.flatten)
-  private[Chisel] def addElt(name: String, elt: Data): Unit =
+  private[chisel3] lazy val flatten = namedElts.flatMap(_._2.flatten)
+  private[core] def addElt(name: String, elt: Data): Unit =
     namedElts += name -> elt
-  private[Chisel] override def _onModuleClose: Unit = // scalastyle:ignore method.name
+  private[chisel3] override def _onModuleClose: Unit = // scalastyle:ignore method.name
     for ((name, elt) <- namedElts) { elt.setRef(this, _namespace.name(name)) }
     
-  private[Chisel] final def allElements: Seq[Element] = namedElts.flatMap(_._2.allElements)
+  private[chisel3] final def allElements: Seq[Element] = namedElts.flatMap(_._2.allElements)
 
   override def cloneType : this.type = {
     // If the user did not provide a cloneType method, try invoking one of
@@ -386,6 +386,6 @@ class Bundle extends Aggregate {
   }
 }
 
-private[Chisel] object Bundle {
-  val keywords = List("flip", "asInput", "asOutput", "cloneType", "toBits")
+private[core] object Bundle {
+  val keywords = List("flip", "asInput", "asOutput", "cloneType", "toBits", "newType")
 }
