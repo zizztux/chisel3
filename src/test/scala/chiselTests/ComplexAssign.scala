@@ -16,7 +16,7 @@ class Complex[T <: Data](val re: T, val im: T) extends Bundle {
 
 class ComplexAssign(w: Int) extends Module {
   val io = new Bundle {
-    val e   = new Bool(INPUT)
+    val e   = new Bool().asInput
     val in  = new Complex(UInt(width = w), UInt(width = w)).asInput
     val out = new Complex(UInt(width = w), UInt(width = w)).asOutput
   }

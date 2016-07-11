@@ -13,7 +13,7 @@ class Tbl(w: Int, n: Int) extends Module {
   val io = new Bundle {
     val wi  = UInt(INPUT, log2Up(n))
     val ri  = UInt(INPUT, log2Up(n))
-    val we  = Bool(INPUT)
+    val we  = Bool().asInput
     val  d  = UInt(INPUT, w)
     val  o  = UInt(OUTPUT, w)
   }

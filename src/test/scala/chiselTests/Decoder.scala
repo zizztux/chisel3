@@ -13,7 +13,7 @@ import chisel3.util._
 class Decoder(bitpats: List[String]) extends Module {
   val io = new Bundle {
     val inst  = UInt(INPUT, 32)
-    val matched = Bool(OUTPUT)
+    val matched = Bool().asOutput
   }
   io.matched := Vec(bitpats.map(BitPat(_) === io.inst)).reduce(_||_)
 }

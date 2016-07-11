@@ -17,12 +17,12 @@ class UIntOps extends Module {
     val modout = UInt(OUTPUT, 16)
     val lshiftout = UInt(OUTPUT, 16)
     val rshiftout = UInt(OUTPUT, 16)
-    val lessout = Bool(OUTPUT)
-    val greatout = Bool(OUTPUT)
-    val eqout = Bool(OUTPUT)
-    val noteqout = Bool(OUTPUT)
-    val lesseqout = Bool(OUTPUT)
-    val greateqout = Bool(OUTPUT)
+    val lessout = Bool().asOutput
+    val greatout = Bool().asOutput
+    val eqout = Bool().asOutput
+    val noteqout = Bool().asOutput
+    val lesseqout = Bool().asOutput
+    val greateqout = Bool().asOutput
   }
 
   val a = io.a
@@ -79,7 +79,7 @@ class UIntOpsTester(c: UIntOps) extends Tester(c) {
 class GoodBoolConversion extends Module {
   val io = new Bundle {
     val u = UInt(1, width = 1).asInput
-    val b = Bool(OUTPUT)
+    val b = Bool().asOutput
   }
   io.b := io.u.toBool
 }
@@ -87,7 +87,7 @@ class GoodBoolConversion extends Module {
 class BadBoolConversion extends Module {
   val io = new Bundle {
     val u = UInt(1, width = 5).asInput
-    val b = Bool(OUTPUT)
+    val b = Bool().asOutput
   }
   io.b := io.u.toBool
 }

@@ -16,12 +16,12 @@ class SIntOps extends Module {
     val modout = SInt(OUTPUT, 16)
     val lshiftout = SInt(OUTPUT, 16)
     val rshiftout = SInt(OUTPUT, 16)
-    val lessout = Bool(OUTPUT)
-    val greatout = Bool(OUTPUT)
-    val eqout = Bool(OUTPUT)
-    val noteqout = Bool(OUTPUT)
-    val lesseqout = Bool(OUTPUT)
-    val greateqout = Bool(OUTPUT)
+    val lessout = Bool().asOutput
+    val greatout = Bool().asOutput
+    val eqout = Bool().asOutput
+    val noteqout = Bool().asOutput
+    val lesseqout = Bool().asOutput
+    val greateqout = Bool().asOutput
     val negout = SInt(OUTPUT, 16)
   }
 

@@ -7,11 +7,11 @@ import chisel3.util._
 
 class Risc extends Module {
   val io = new Bundle {
-    val isWr   = Bool(INPUT)
+    val isWr   = Bool().asInput
     val wrAddr = UInt(INPUT, 8)
     val wrData = Bits(INPUT, 32)
-    val boot   = Bool(INPUT)
-    val valid  = Bool(OUTPUT)
+    val boot   = Bool().asInput
+    val valid  = Bool().asOutput
     val out    = Bits(OUTPUT, 32)
   }
   val memSize = 256

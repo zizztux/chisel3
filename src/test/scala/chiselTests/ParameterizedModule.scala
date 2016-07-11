@@ -8,8 +8,8 @@ import chisel3.testers.BasicTester
 
 class ParameterizedModule(invert: Boolean) extends Module {
   val io = new Bundle {
-    val in = new Bool(INPUT)
-    val out = new Bool(OUTPUT)
+    val in = new Bool().asInput
+    val out = new Bool().asOutput
   }
   if (invert) {
     io.out := !io.in

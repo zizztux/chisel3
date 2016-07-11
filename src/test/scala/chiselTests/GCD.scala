@@ -11,9 +11,9 @@ class GCD extends Module {
   val io = new Bundle {
     val a  = UInt(INPUT, 32)
     val b  = UInt(INPUT, 32)
-    val e  = Bool(INPUT)
+    val e  = Bool().asInput
     val z  = UInt(OUTPUT, 32)
-    val v  = Bool(OUTPUT)
+    val v  = Bool().asOutput
   }
   val x = Reg(UInt(width = 32))
   val y = Reg(UInt(width = 32))

@@ -9,9 +9,9 @@ import chisel3.util._
 
 class ChiselStack(val depth: Int) extends Module {
   val io = new Bundle {
-    val push    = Bool(INPUT)
-    val pop     = Bool(INPUT)
-    val en      = Bool(INPUT)
+    val push    = Bool().asInput
+    val pop     = Bool().asInput
+    val en      = Bool().asInput
     val dataIn  = UInt(INPUT,  32)
     val dataOut = UInt(OUTPUT, 32)
   }

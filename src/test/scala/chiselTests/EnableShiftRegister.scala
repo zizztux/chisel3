@@ -7,7 +7,7 @@ import chisel3.testers.BasicTester
 class EnableShiftRegister extends Module {
   val io = new Bundle {
     val in    = UInt(INPUT, 4)
-    val shift = Bool(INPUT)
+    val shift = Bool().asInput
     val out   = UInt(OUTPUT, 4)
   }
   val r0 = Reg(init = UInt(0, 4))

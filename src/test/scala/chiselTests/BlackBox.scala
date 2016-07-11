@@ -11,23 +11,23 @@ import chisel3.util._
 
 class BlackBoxInverter extends BlackBox {
   val io = new Bundle() {
-    val in = Bool(INPUT)
-    val out = Bool(OUTPUT)
+    val in = Bool().asInput
+    val out = Bool().asOutput
   }
 }
 
 class BlackBoxPassthrough extends BlackBox {
   val io = new Bundle() {
-    val in = Bool(INPUT)
-    val out = Bool(OUTPUT)
+    val in = Bool().asInput
+    val out = Bool().asOutput
   }
 }
 
 class BlackBoxRegister extends BlackBox {
   val io = new Bundle() {
     val clock = Clock().asInput
-    val in = Bool(INPUT)
-    val out = Bool(OUTPUT)
+    val in = Bool().asInput
+    val out = Bool().asOutput
   }
 }
 
