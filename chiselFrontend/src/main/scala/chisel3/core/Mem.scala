@@ -84,7 +84,7 @@ sealed abstract class MemBase[T <: Data](t: T, val length: Int) extends HasId wi
 
     val port = pushCommand(
       DefMemPort(sourceInfo,
-       t.newType, Node(this), dir, idx.ref, Node(idx._parent.get.clock))
+       t.cloneType, Node(this), dir, idx.ref, Node(idx._parent.get.clock))
     ).id
     // Bind each element of port to being a MemoryPort
     Binding.bind(port, MemoryPortBinder(Builder.forcedModule), "Error: Fresh t")

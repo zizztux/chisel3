@@ -9,9 +9,9 @@ import chisel3._
 
 /** An I/O bundle for the Arbiter */
 class ArbiterIO[T <: Data](gen: T, n: Int) extends Bundle {
-  val in  = Vec(n, Decoupled(gen)).flip
+  val in  = Flipped(Vec(n, Decoupled(gen)))
   val out = Decoupled(gen)
-  val chosen = UInt(OUTPUT, log2Up(n))
+  val chosen = Output(UInt(log2Up(n)))
 }
 
 /** Arbiter Control determining which producer has access */

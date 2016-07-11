@@ -5,13 +5,13 @@
 
 package chisel3.util
 
-import chisel3._
+import Chisel._
 
 /** An I/O Bundle with simple handshaking using valid and ready signals for data 'bits'*/
 class DecoupledIO[+T <: Data](gen: T) extends Bundle
 {
-  val ready = Bool(INPUT)
-  val valid = Bool(OUTPUT)
+  val ready = Bool().asInput
+  val valid = Bool().asOutput
   val bits  = gen.cloneType.asOutput
   def fire(dummy: Int = 0): Bool = ready && valid
   override def cloneType: this.type = new DecoupledIO(gen).asInstanceOf[this.type]
@@ -72,8 +72,8 @@ class DeqIO[T <: Data](gen: T) extends DecoupledIO(gen) with Flipped
 /** An I/O bundle for dequeuing data with valid/ready handshaking */
 class DecoupledIOC[+T <: Data](gen: T) extends Bundle
 {
-  val ready = Bool(INPUT)
-  val valid = Bool(OUTPUT)
+  val ready = Bool().asInput
+  val valid = Bool().asOutput
   val bits  = gen.cloneType.asOutput
 }
 
@@ -87,7 +87,7 @@ class QueueIO[T <: Data](gen: T, entries: Int) extends Bundle
   /** I/O to enqueue data, is [[Chisel.DecoupledIO]]*/
   val deq   = Decoupled(gen.cloneType)
   /** The current amount of data in the queue */
-  val count = UInt(OUTPUT, log2Up(entries + 1))
+  val count = UInt(log2Up(entries + 1))
 }
 
 /** A hardware module implementing a Queue

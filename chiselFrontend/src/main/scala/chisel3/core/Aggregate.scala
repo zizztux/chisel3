@@ -15,7 +15,7 @@ import chisel3.internal.sourceinfo.{SourceInfo, DeprecatedSourceInfo, VecTransfo
   * of) other Data objects.
   */
 sealed abstract class Aggregate extends Data {
-  private[core] def cloneTypeWidth(width: Width): this.type = cloneType
+  private[chisel3] def cloneTypeWidth(width: Width): this.type = cloneType
   private[chisel3] def width: Width = flatten.map(_.width).reduce(_ + _)
 }
 
@@ -109,7 +109,7 @@ sealed class Vec[T <: Data] private (gen: T, val length: Int)
   // Note: the constructor takes a gen() function instead of a Seq to enforce
   // that all elements must be the same and because it makes FIRRTL generation
   // simpler.
-  private val self: Seq[T] = Vector.fill(length)(gen.newType)
+  private val self = IndexedSeq.fill(length)(gen)
 
   /**
   * sample_element 'tracks' all changes to the elements of self.
@@ -118,7 +118,7 @@ sealed class Vec[T <: Data] private (gen: T, val length: Int)
   *
   * Needed specifically for the case when the Vec is length 0.
   */
-  private[core] val sample_element: T = gen.newType
+  private[core] val sample_element: T = gen
 
   // allElements current includes sample_element
   // This is somewhat weird although I think the best course of action here is
@@ -157,7 +157,7 @@ sealed class Vec[T <: Data] private (gen: T, val length: Int)
     */
   def apply(idx: UInt): T = {
     Binding.checkSynthesizable(idx ,s"'idx' ($idx)")
-    val port = sample_element.newType
+    val port = sample_element.cloneType
     port.setRef(this, idx) //TODO(twigg): This is a bit too magical
 
     // Bind each element of port to being whatever the base type is
@@ -387,5 +387,5 @@ class Bundle extends Aggregate {
 }
 
 private[core] object Bundle {
-  val keywords = List("flip", "asInput", "asOutput", "cloneType", "toBits", "newType")
+  val keywords = List("flip", "asInput", "asOutput", "cloneType", "toBits")
 }

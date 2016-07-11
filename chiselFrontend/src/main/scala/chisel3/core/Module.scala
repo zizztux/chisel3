@@ -27,14 +27,19 @@ object Module {
     // module de-duplication in FIRRTL emission.
     val childSourceInfo = UnlocatableSourceInfo
 
-    val parent = dynamicContext.currentModule
-    val m = bc.setRefs()
+    val parent: Option[Module] = Builder.currentModule
+    val m = bc.setRefs() // This will set currentModule!
     m._commands.prepend(DefInvalid(childSourceInfo, m.io.ref)) // init module outputs
-    dynamicContext.currentModule = parent
+    Builder.currentModule = parent // Back to parent!
     val ports = m.computePorts
     Builder.components += Component(m, m.name, ports, m._commands)
-    pushCommand(DefInstance(sourceInfo, m, ports))
-    m.setupInParent(childSourceInfo)
+    // Avoid referencing 'parent' in top module
+    if(!Builder.currentModule.isEmpty) {
+      pushCommand(DefInstance(sourceInfo, m, ports))
+      m.setupInParent(childSourceInfo)
+    }
+
+    m
   }
 }
 
@@ -56,7 +61,7 @@ extends HasId {
   private[core] val _namespace = Builder.globalNamespace.child
   private[chisel3] val _commands = ArrayBuffer[Command]()
   private[core] val _ids = ArrayBuffer[HasId]()
-  dynamicContext.currentModule = Some(this)
+  Builder.currentModule = Some(this)
 
   /** Name of the instance. */
   val name = Builder.globalNamespace.name(getClass.getName.split('.').last)
@@ -65,8 +70,8 @@ extends HasId {
     * connections in and out of a Module may only go through `io` elements.
     */
   def io: Bundle
-  val clock = Clock(INPUT)
-  val reset = Bool(INPUT)
+  val clock = Clock().asInput
+  val reset = Bool().asInput
 
   private[chisel3] def addId(d: HasId) { _ids += d }
 
@@ -74,10 +79,13 @@ extends HasId {
     ("clk", clock), ("reset", reset), ("io", io)
   )
 
-  private[core] def computePorts = for((name, port) <- ports) yield {
-    val bundleDir = if (port.isFlip) INPUT else OUTPUT
-    Port(port, if (port.dir == NO_DIR) bundleDir else port.dir)
-  }
+  private[core] def computePorts: Seq[firrtl.Port] =
+    for((name, port) <- ports) yield {
+      // Port definitions need to know input or output at top-level.
+      // By FIRRTL semantics, 'flipped' becomes an Input
+      val direction = if(Data.isFlipped(port)) Direction.Input else Direction.Output
+      firrtl.Port(port, direction)
+    }
 
   private[core] def setupInParent(implicit sourceInfo: SourceInfo): this.type = {
     _parent match {

@@ -47,8 +47,8 @@ private[chisel3] class IdGen {
 }
 
 private[chisel3] trait HasId {
-  private[chisel3] def _onModuleClose {} // scalastyle:ignore method.name
-  private[chisel3] val _parent = Builder.dynamicContext.currentModule
+  private[chisel3] def _onModuleClose: Unit = {} // scalastyle:ignore method.name
+  private[chisel3] val _parent: Option[Module] = Builder.currentModule
   _parent.foreach(_.addId(this))
 
   private[chisel3] val _id = Builder.idGen.next
@@ -100,11 +100,23 @@ private[chisel3] object Builder {
   // All global mutable state must be referenced via dynamicContextVar!!
   private val dynamicContextVar = new DynamicVariable[Option[DynamicContext]](None)
 
-  def dynamicContext: DynamicContext =
-    dynamicContextVar.value getOrElse (new DynamicContext)
+  private def dynamicContext: DynamicContext =
+    dynamicContextVar.value.getOrElse(new DynamicContext)
   def idGen: IdGen = dynamicContext.idGen
   def globalNamespace: Namespace = dynamicContext.globalNamespace
   def components: ArrayBuffer[Component] = dynamicContext.components
+
+  def currentModule: Option[Module] = dynamicContext.currentModule
+  def currentModule_=(target: Option[Module]): Unit = {
+    dynamicContext.currentModule = target
+  }
+  def forcedModule: Module = currentModule match {
+    case Some(module) => module
+    case None => throw new Exception(
+      "Error: Not in a Module. Likely cause: Missed Module() wrap or bare chisel API call."
+      // A bare api call is, e.g. calling Wire() from the scala console).
+    )
+  }
 
   // TODO(twigg): Ideally, binding checks and new bindings would all occur here
   // However, rest of frontend can't support this yet.

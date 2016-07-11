@@ -389,7 +389,7 @@ abstract trait Num[T <: Data] {
 sealed class UInt private[core] (width: Width, lit: Option[ULit] = None)
     extends Bits(width, lit) with Num[UInt] {
 
-  private[core] override def cloneTypeWidth(w: Width): this.type =
+  private[chisel3] override def cloneTypeWidth(w: Width): this.type =
     new UInt(w).asInstanceOf[this.type]
   private[chisel3] def toType = s"UInt$width"
 
@@ -559,7 +559,7 @@ object UInt extends UIntFactory
 sealed class SInt private (width: Width, lit: Option[SLit] = None)
     extends Bits(width, lit) with Num[SInt] {
 
-  private[core] override def cloneTypeWidth(w: Width): this.type =
+  private[chisel3] override def cloneTypeWidth(w: Width): this.type =
     new SInt(w).asInstanceOf[this.type]
   private[chisel3] def toType = s"SInt$width"
 
@@ -667,6 +667,8 @@ object SInt {
   /** Create an SInt literal with inferred width. */
   def apply(value: BigInt): SInt = apply(value, Width())
   /** Create an SInt literal with fixed width. */
+  def apply(value: BigInt, width: Int): SInt = apply(value, Width(width))
+
   /** Create an SInt literal with specified width. */
   def apply(value: BigInt, width: Width): SInt = {
     val lit = SLit(value, width)
@@ -682,7 +684,7 @@ object SInt {
 /** A data type for booleans, defined as a single bit indicating true or false.
   */
 sealed class Bool(lit: Option[ULit] = None) extends UInt(Width(1), lit) {
-  private[core] override def cloneTypeWidth(w: Width): this.type = {
+  private[chisel3] override def cloneTypeWidth(w: Width): this.type = {
     require(!w.known || w.get == 1)
     new Bool().asInstanceOf[this.type]
   }
@@ -729,6 +731,7 @@ object Bool {
 
   /** Creates Bool literal.
    */
+  def apply(x: Boolean): Bool = new Bool(Some(ULit(if (x) 1 else 0, Width(1))))
 }
 
 object Mux {

@@ -10,7 +10,7 @@ import chisel3._
 /** An I/O Bundle containing data and a signal determining if it is valid */
 class ValidIO[+T <: Data](gen2: T) extends Bundle
 {
-  val valid = Bool(OUTPUT)
+  val valid = Bool().asOutput
   val bits = gen2.cloneType.asOutput
   def fire(dummy: Int = 0): Bool = valid
   override def cloneType: this.type = new ValidIO(gen2).asInstanceOf[this.type]
@@ -53,8 +53,8 @@ object Pipe
 class Pipe[T <: Data](gen: T, latency: Int = 1) extends Module
 {
   val io = new Bundle {
-    val enq = Valid(gen).flip
-    val deq = Valid(gen)
+    val enq = Input(Valid(gen))
+    val deq = Output(Valid(gen))
   }
 
   io.deq <> Pipe(io.enq, latency)

@@ -74,7 +74,7 @@ object Data {
     @deprecated("Output(Data) should be used over Data.asOutput", "gchisel")
     def asOutput: T = Output(target)
     @deprecated("Flipped(Data) should be used over Data.flip", "gchisel")
-    def asFlip: T = Flipped(target)
+    def flip(): T = Flipped(target)
   }
 }
 
@@ -212,7 +212,7 @@ object Clock {
 sealed class Clock extends Element(Width(1)) {
   def cloneType: this.type = Clock().asInstanceOf[this.type]
   private[chisel3] override def flatten: IndexedSeq[Bits] = IndexedSeq()
-  private[core] def cloneTypeWidth(width: Width): this.type = cloneType
+  private[chisel3] def cloneTypeWidth(width: Width): this.type = cloneType
   private[chisel3] def toType = "Clock"
 
   override def connect (that: Data)(implicit sourceInfo: SourceInfo): Unit = that match {
