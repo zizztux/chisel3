@@ -84,4 +84,7 @@ package object chisel3 {
     def do_!= (that: BitPat)(implicit sourceInfo: SourceInfo): Bool = that != x
     def do_=/= (that: BitPat)(implicit sourceInfo: SourceInfo): Bool = that =/= x
   }
+
+  val INPUT = chisel3.core.Direction.Input
+  val OUTPUT = chisel3.core.Direction.Output
 }

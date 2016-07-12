@@ -125,4 +125,6 @@ extends HasId {
     _ids.foreach(_._onModuleClose)
     this
   }
+  // Provide an interface to ports and directions.
+  lazy val getPorts: Seq[firrtl.Port] = computePorts
 }

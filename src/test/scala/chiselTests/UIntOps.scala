@@ -8,15 +8,15 @@ import chisel3.testers.BasicTester
 
 class UIntOps extends Module {
   val io = new Bundle {
-    val a = UInt(INPUT, 16)
-    val b = UInt(INPUT, 16)
-    val addout = UInt(OUTPUT, 16)
-    val subout = UInt(OUTPUT, 16)
-    val timesout = UInt(OUTPUT, 16)
-    val divout = UInt(OUTPUT, 16)
-    val modout = UInt(OUTPUT, 16)
-    val lshiftout = UInt(OUTPUT, 16)
-    val rshiftout = UInt(OUTPUT, 16)
+    val a = UInt(width=16).asInput
+    val b = UInt(width=16).asInput
+    val addout = UInt(width=16).asOutput
+    val subout = UInt(width=16).asOutput
+    val timesout = UInt(width=16).asOutput
+    val divout = UInt(width=16).asOutput
+    val modout = UInt(width=16).asOutput
+    val lshiftout = UInt(width=16).asOutput
+    val rshiftout = UInt(width=16).asOutput
     val lessout = Bool().asOutput
     val greatout = Bool().asOutput
     val eqout = Bool().asOutput
@@ -78,7 +78,7 @@ class UIntOpsTester(c: UIntOps) extends Tester(c) {
 
 class GoodBoolConversion extends Module {
   val io = new Bundle {
-    val u = UInt(1, width = 1).asInput
+    val u = UInt(1, width = 1)
     val b = Bool().asOutput
   }
   io.b := io.u.toBool
@@ -86,7 +86,7 @@ class GoodBoolConversion extends Module {
 
 class BadBoolConversion extends Module {
   val io = new Bundle {
-    val u = UInt(1, width = 5).asInput
+    val u = UInt(1, width = 5)
     val b = Bool().asOutput
   }
   io.b := io.u.toBool

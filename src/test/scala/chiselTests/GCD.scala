@@ -9,10 +9,10 @@ import org.scalatest.prop._
 
 class GCD extends Module {
   val io = new Bundle {
-    val a  = UInt(INPUT, 32)
-    val b  = UInt(INPUT, 32)
+    val a  = UInt(width=32).asInput
+    val b  = UInt(width=32).asInput
     val e  = Bool().asInput
-    val z  = UInt(OUTPUT, 32)
+    val z  = UInt(width=32).asOutput
     val v  = Bool().asOutput
   }
   val x = Reg(UInt(width = 32))

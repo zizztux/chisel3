@@ -8,11 +8,11 @@ import chisel3.util._
 class Risc extends Module {
   val io = new Bundle {
     val isWr   = Bool().asInput
-    val wrAddr = UInt(INPUT, 8)
-    val wrData = Bits(INPUT, 32)
+    val wrAddr = UInt(width=8).asInput
+    val wrData = Bits(width=32).asInput
     val boot   = Bool().asInput
     val valid  = Bool().asOutput
-    val out    = Bits(OUTPUT, 32)
+    val out    = Bits(width=32).asOutput
   }
   val memSize = 256
   val file = Mem(memSize, Bits(width = 32))
@@ -27,30 +27,30 @@ class Risc extends Module {
   val rai  = inst(15, 8)
   val rbi  = inst( 7, 0)
 
-  val ra = Mux(rai === Bits(0), Bits(0), file(rai))
-  val rb = Mux(rbi === Bits(0), Bits(0), file(rbi))
+  val ra = Mux(rai === 0.U, 0.U, file(rai))
+  val rb = Mux(rbi === 0.U, 0.U, file(rbi))
   val rc = Wire(Bits(width = 32))
 
   io.valid := Bool(false)
-  io.out   := Bits(0)
-  rc       := Bits(0)
+  io.out   := 0.U
+  rc       := 0.U
 
   when (io.isWr) {
     code(io.wrAddr) := io.wrData
   } .elsewhen (io.boot) {
-    pc := UInt(0)
+    pc := 0.U
   } .otherwise {
     switch(op) {
       is(add_op) { rc := ra +% rb }
       is(imm_op) { rc := (rai << 8) | rbi }
     }
     io.out := rc
-    when (rci === UInt(255)) {
+    when (rci === 255.U) {
       io.valid := Bool(true)
     } .otherwise {
       file(rci) := rc
     }
-    pc := pc +% UInt(1)
+    pc := pc +% 1.U
   }
 }
 

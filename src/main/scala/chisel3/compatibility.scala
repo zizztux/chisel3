@@ -131,6 +131,8 @@ package object Chisel {
   val Pipe = chisel3.util.Pipe
   type Pipe[T <: Data] = chisel3.util.Pipe[T]
 
+  val INPUT = chisel3.core.Direction.Input
+  val OUTPUT = chisel3.core.Direction.Output
 
   import chisel3.internal.firrtl.Width
 }

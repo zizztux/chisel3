@@ -6,6 +6,7 @@
 package chisel3.util
 
 import Chisel._
+import chisel3.Flipped
 
 /** An I/O Bundle with simple handshaking using valid and ready signals for data 'bits'*/
 class DecoupledIO[+T <: Data](gen: T) extends Bundle
@@ -50,8 +51,9 @@ class EnqIO[T <: Data](gen: T) extends DecoupledIO(gen)
 /** An I/O bundle for dequeuing data with valid/ready handshaking.
   * Initialization must be handled, if necessary, by the parent circuit
   */
-class DeqIO[T <: Data](gen: T) extends DecoupledIO(gen) with Flipped
+class DeqIO[T <: Data](gen: T) extends DecoupledIO(gen)
 {
+  chisel3.Flipped(this)
   /** Assert ready on this port and return the associated data bits.
     * This is typically used when valid has been asserted by the producer side.
     * @param b ignored

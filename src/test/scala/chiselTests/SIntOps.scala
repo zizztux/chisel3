@@ -7,22 +7,22 @@ import chisel3.testers.BasicTester
 
 class SIntOps extends Module {
   val io = new Bundle {
-    val a = SInt(INPUT, 16)
-    val b = SInt(INPUT, 16)
-    val addout = SInt(OUTPUT, 16)
-    val subout = SInt(OUTPUT, 16)
-    val timesout = SInt(OUTPUT, 16)
-    val divout = SInt(OUTPUT, 16)
-    val modout = SInt(OUTPUT, 16)
-    val lshiftout = SInt(OUTPUT, 16)
-    val rshiftout = SInt(OUTPUT, 16)
+    val a = SInt(width=16).asInput
+    val b = SInt(width=16).asInput
+    val addout = SInt(width=16).asOutput
+    val subout = SInt(width=16).asOutput
+    val timesout = SInt(width=16).asOutput
+    val divout = SInt(width=16).asOutput
+    val modout = SInt(width=16).asOutput
+    val lshiftout = SInt(width=16).asOutput
+    val rshiftout = SInt(width=16).asOutput
     val lessout = Bool().asOutput
     val greatout = Bool().asOutput
     val eqout = Bool().asOutput
     val noteqout = Bool().asOutput
     val lesseqout = Bool().asOutput
     val greateqout = Bool().asOutput
-    val negout = SInt(OUTPUT, 16)
+    val negout = SInt(width=16).asOutput
   }
 
   val a = io.a
@@ -44,7 +44,7 @@ class SIntOps extends Module {
   io.lesseqout := a <= b
   io.greateqout := a >= b
   // io.negout := -a(15, 0).toSInt
-  io.negout := (SInt(0) -% a)
+  io.negout := (0.S -% a)
 }
 
 /*

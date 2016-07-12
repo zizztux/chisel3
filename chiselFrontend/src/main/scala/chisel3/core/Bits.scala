@@ -32,6 +32,9 @@ abstract class Element(private[core] val width: Width) extends Data {
   }
   private[core] def binding = _binding
 
+  /** Return the binding for some bits. */
+  def dir: Direction = binding.direction.get
+
   private[chisel3] final def allElements: Seq[Element] = Seq(this)
 }
 
@@ -69,7 +72,7 @@ sealed abstract class Bits(width: Width, override val litArg: Option[LitArg])
       case KnownWidth(x) => require(x >= n, s"Can't head($n) for width $x < $n")
       case UnknownWidth() =>
     }
-    binop(sourceInfo, UInt(width = n), HeadOp, n)
+    binop(sourceInfo, UInt(Width(n)), HeadOp, n)
   }
 
   /** Returns the specified bit on this wire as a [[Bool]], statically
@@ -127,7 +130,7 @@ sealed abstract class Bits(width: Width, override val litArg: Option[LitArg])
       UInt((litValue >> y) & ((BigInt(1) << w) - 1), w)
     } else {
       Binding.checkSynthesizable(this, s"'this' ($this)")
-      pushOp(DefPrim(sourceInfo, UInt(width = w), BitsExtractOp, this.ref, ILit(x), ILit(y)))
+      pushOp(DefPrim(sourceInfo, UInt(Width(w)), BitsExtractOp, this.ref, ILit(x), ILit(y)))
     }
   }
 
@@ -389,6 +392,10 @@ abstract trait Num[T <: Data] {
 sealed class UInt private[core] (width: Width, lit: Option[ULit] = None)
     extends Bits(width, lit) with Num[UInt] {
 
+  if (lit != None) {
+    this.binding = LitBinding()
+
+  }
   private[chisel3] override def cloneTypeWidth(w: Width): this.type =
     new UInt(w).asInstanceOf[this.type]
   private[chisel3] def toType = s"UInt$width"
@@ -468,7 +475,7 @@ sealed class UInt private[core] (width: Width, lit: Option[ULit] = None)
 
   final def unary_! () : Bool = macro SourceInfoTransform.noArg
 
-  def do_unary_! (implicit sourceInfo: SourceInfo) : Bool = this === Bits(0)
+  def do_unary_! (implicit sourceInfo: SourceInfo) : Bool = this === UInt(0, 1)
 
   override def do_<< (that: Int)(implicit sourceInfo: SourceInfo): UInt =
     binop(sourceInfo, UInt(this.width + that), ShiftLeftOp, that)
@@ -511,11 +518,10 @@ sealed class UInt private[core] (width: Width, lit: Option[ULit] = None)
 private[core] sealed trait UIntFactory {
   /** Create a UInt type with inferred width. */
   def apply(): UInt = apply(Width())
-  /** Create a UInt type or port with fixed width. */
-  def apply(width: Int): UInt = apply(Width(width))
   /** Create a UInt port with specified width. */
   def apply(width: Width): UInt = new UInt(width)
-
+  /** Create a UInt with a specified width - compatibility with Chisel2. */
+  def apply(dummy: Option[Direction] = None, width: Int): UInt = apply(Width(width))
   /** Create a UInt literal with inferred width. */
   def apply(value: BigInt): UInt = apply(value, Width())
   /** Create a UInt literal with fixed width. */
@@ -528,7 +534,7 @@ private[core] sealed trait UIntFactory {
     val lit = ULit(value, width)
     val result = new UInt(lit.width, Some(lit))
     // Bind result to being an Literal
-    result.binding = LitBinding()
+//    result.binding = LitBinding()
     result
   }
 

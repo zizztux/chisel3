@@ -7,10 +7,10 @@ import chisel3.testers.BasicTester
 
 class MemorySearch extends Module {
   val io = new Bundle {
-    val target  = UInt(INPUT,  4)
+    val target  = UInt(4).asInput
     val en      = Bool().asInput
     val done    = Bool().asOutput
-    val address = UInt(OUTPUT, 3)
+    val address = UInt(3).asOutput
   }
   val vals  = Array(0, 4, 15, 14, 2, 5, 13)
   val index = Reg(init = UInt(0, width = 3))

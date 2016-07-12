@@ -9,7 +9,7 @@ import chisel3.util._
 class LFSR16 extends Module {
   val io = new Bundle {
     val inc = Bool().asInput
-    val out = UInt(OUTPUT, 16)
+    val out = UInt(width = 16).asOutput
   }
   val res = Reg(init = UInt(1, 16))
   when (io.inc) {

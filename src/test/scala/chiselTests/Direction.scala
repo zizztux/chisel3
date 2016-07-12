@@ -9,8 +9,8 @@ import chisel3.testers.BasicTester
 
 class DirectionHaver extends Module {
   val io = new Bundle {
-    val in = UInt(INPUT, 32)
-    val out = UInt(OUTPUT, 32)
+    val in = UInt(width=32).asInput
+    val out = UInt(width=32).asOutput
   }
 }
 

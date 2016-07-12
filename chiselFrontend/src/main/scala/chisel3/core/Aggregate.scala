@@ -104,7 +104,7 @@ object Vec {
   * @note Vecs, unlike classes in Scala's collection library, are propagated
   * intact to FIRRTL as a vector type, which may make debugging easier
   */
-sealed class Vec[T <: Data] private (gen: T, val length: Int)
+sealed class Vec[T <: Data] private (gen: => T, val length: Int)
     extends Aggregate with VecLike[T] {
   // Note: the constructor takes a gen() function instead of a Seq to enforce
   // that all elements must be the same and because it makes FIRRTL generation

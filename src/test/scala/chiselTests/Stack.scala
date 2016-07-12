@@ -12,8 +12,8 @@ class ChiselStack(val depth: Int) extends Module {
     val push    = Bool().asInput
     val pop     = Bool().asInput
     val en      = Bool().asInput
-    val dataIn  = UInt(INPUT,  32)
-    val dataOut = UInt(OUTPUT, 32)
+    val dataIn  = UInt(width=32).asInput
+    val dataOut = UInt(width=32).asOutput
   }
 
   val stack_mem = Mem(depth, UInt(width = 32))

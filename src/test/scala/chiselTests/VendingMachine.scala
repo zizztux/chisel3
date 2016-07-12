@@ -7,9 +7,9 @@ import chisel3.util._
 
 class VendingMachine extends Module {
   val io = new Bundle {
-    val nickel = Bool(dir = INPUT)
-    val dime   = Bool(dir = INPUT)
-    val valid  = Bool(dir = OUTPUT) }
+    val nickel = Bool().asInput
+    val dime   = Bool().asInput
+    val valid  = Bool().asOutput }
   val c = UInt(5, width = 3)
   val sIdle :: s5 :: s10 :: s15 :: sOk :: Nil = Enum(UInt(), 5)
   val state = Reg(init = sIdle)

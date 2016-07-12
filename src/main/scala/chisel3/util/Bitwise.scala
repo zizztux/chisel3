@@ -7,6 +7,7 @@ package chisel3.util
 
 import chisel3._
 import chisel3.core.SeqUtils
+import chisel3.internal.firrtl.Width
 
 object FillInterleaved
 {
@@ -27,7 +28,7 @@ object Fill {
   /** Fan out x n times */
   def apply(n: Int, x: UInt): UInt = {
     n match {
-      case 0 => UInt(width=0)
+      case 0 => UInt(Width(0))
       case 1 => x
       case y if n > 1 =>
         val p2 = Array.ofDim[UInt](log2Up(n + 1))
