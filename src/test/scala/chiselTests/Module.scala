@@ -41,7 +41,7 @@ class ModuleVecTester(c: ModuleVec) extends Tester(c) {
 
 class ModuleWire extends Module {
   val io = new SimpleIO
-  val inc = Wire(Module(new PlusOne).io)
+  val inc = Wire(Module(new PlusOne).io.cloneType)
   inc.in := io.in
   io.out := inc.out
 }
