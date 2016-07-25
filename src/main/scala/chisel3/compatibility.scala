@@ -5,7 +5,6 @@
 
 package object Chisel {
   type Direction = chisel3.core.Direction
-
   type Data = chisel3.core.Data
   val Wire = chisel3.core.Wire
   val Clock = chisel3.core.Clock
@@ -57,7 +56,7 @@ package object Chisel {
   val ImplicitConversions = chisel3.util.ImplicitConversions
   val chiselMain = chisel3.compatibility.chiselMain
   val throwException = chisel3.compatibility.throwException
-//  val debug = chisel3.compatibility.debug
+  val debug = chisel3.compatibility.debug
 
   object testers {
     type BasicTester = chisel3.testers.BasicTester
@@ -99,7 +98,6 @@ package object Chisel {
   val Counter = chisel3.util.Counter
 
   type DecoupledIO[+T <: Data] = chisel3.util.DecoupledIO[T]
-
   type QueueIO[T <: Data] = chisel3.util.QueueIO[T]
   type Queue[T <: Data] = chisel3.util.Queue[T]
   val Queue = chisel3.util.Queue
@@ -135,4 +133,12 @@ package object Chisel {
   val OUTPUT = chisel3.core.Direction.Output
 
   import chisel3.internal.firrtl.Width
+  implicit def fromBigIntToLiteral(x: BigInt): chisel3.fromBigIntToLiteral =
+    new chisel3.fromBigIntToLiteral(x)
+  implicit def fromIntToLiteral(x: Int): chisel3.fromIntToLiteral=
+    new chisel3.fromIntToLiteral(x)
+  implicit def fromStringToLiteral(x: String): chisel3.fromStringToLiteral=
+    new chisel3.fromStringToLiteral(x)
+  implicit def fromBooleanToLiteral(x: Boolean): chisel3.fromBooleanToLiteral=
+    new chisel3.fromBooleanToLiteral(x)
 }

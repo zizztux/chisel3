@@ -36,6 +36,7 @@ abstract class Element(private[core] val width: Width) extends Data {
   def dir: Direction = binding.direction.get
 
   private[chisel3] final def allElements: Seq[Element] = Seq(this)
+  def widthKnown: Boolean = width.known
 }
 
 /** A data type for values represented by a single bitvector. Provides basic

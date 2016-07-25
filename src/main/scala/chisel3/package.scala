@@ -60,6 +60,7 @@ package object chisel3 {
   val when = chisel3.core.when
   type WhenContext = chisel3.core.WhenContext
 
+
   implicit class fromBigIntToLiteral(val x: BigInt) extends AnyVal {
     def U: UInt = UInt(x, Width())
     def S: SInt = SInt(x, Width())
@@ -74,7 +75,7 @@ package object chisel3 {
   implicit class fromBooleanToLiteral(val x: Boolean) extends AnyVal {
     def B: Bool = Bool(x)
   }
-  
+
   implicit class fromUIntToBitPatComparable(val x: UInt) extends AnyVal {
     final def === (that: BitPat): Bool = macro SourceInfoTransform.thatArg
     final def != (that: BitPat): Bool = macro SourceInfoTransform.thatArg

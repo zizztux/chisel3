@@ -199,7 +199,6 @@ object Wire {
       Binding.checkSynthesizable(init, s"'init' ($init)")
       x := init
     }
-
     x
   }
 }
