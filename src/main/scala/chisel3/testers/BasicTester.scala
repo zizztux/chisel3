@@ -35,4 +35,11 @@ class BasicTester extends Module {
     * add flow control logic for a decoupled io port of a device under test
     */
   def finish(): Unit = {}
+  private var circuitGraph: Option[CircuitGraph] = None
+  def setCircuitGraph(cg: CircuitGraph): Unit = {
+    circuitGraph = Some(cg)
+  }
+  def getCircuitGraph(cg: CircuitGraph): CircuitGraph = {
+    circuitGraph.get
+  }
 }

@@ -99,6 +99,30 @@ trait BackendCompilationUtilities {
   def executeExpectingSuccess(prefix: String, dir: File): Boolean = {
     !executeExpectingFailure(prefix, dir)
   }
+
+  def verilogToVCS(
+             topModule: String,
+             dir: java.io.File,
+             vcsHarness: java.io.File
+           ): ProcessBuilder = {
+    val ccFlags = Seq("-I$VCS_HOME/include", "-I$dir", "-fPIC", "-std=c++11")
+    val vcsFlags = Seq("-full64",
+      "-quiet",
+      "-timescale=1ns/1ps",
+      "-debug_pp",
+      s"-Mdir=$topModule.csrc",
+      "+v2k", "+vpi",
+      "+vcs+lic+wait",
+      "+vcs+initreg+random",
+      "+define+CLOCK_PERIOD=1",
+      "-P", "vpi.tab",
+      "-cpp", "g++", "-O2", "-LDFLAGS", "-lstdc++",
+      "-CFLAGS", "\"%s\"".format(ccFlags mkString " "))
+    val cmd = Seq("cd", dir.toString, "&&", "vcs") ++ vcsFlags ++ Seq(
+      "-o", topModule, s"${topModule}.v", vcsHarness.toString, "vpi.cpp") mkString " "
+    println(s"$cmd")
+    Seq("bash", "-c", cmd)
+  }
 }
 
 object Driver extends BackendCompilationUtilities {

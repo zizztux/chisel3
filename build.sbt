@@ -13,6 +13,12 @@ lazy val commonSettings = Seq (
   scalaVersion := "2.11.7"
 )
 
+// Provide a managed dependency on X if -DXVersion="" is supplied on the command line.
+// The following are the default development versions, not the "release" versions.
+val defaultVersions = Map(
+  "firrtl" -> "0.1-SNAPSHOT"
+)
+
 lazy val chiselSettings = Seq (
   name := "Chisel3",
 
@@ -53,6 +59,9 @@ lazy val chiselSettings = Seq (
     "Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
     "Sonatype Releases" at "http://oss.sonatype.org/content/repositories/releases"
   ),
+
+  libraryDependencies ++= (Seq("firrtl").map {
+    dep: String => "edu.berkeley.cs" %% dep % sys.props.getOrElse(dep + "Version", defaultVersions(dep)) }),
 
   /* Bumping "com.novocode" % "junit-interface" % "0.11", causes DelayTest testSeqReadBundle to fail
    *  in subtly disturbing ways on Linux (but not on Mac):
