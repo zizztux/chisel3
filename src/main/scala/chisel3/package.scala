@@ -44,6 +44,15 @@ package object chisel3 {    // scalastyle:ignore package.object.name
   val Mux = chisel3.core.Mux
 
   type BlackBox = chisel3.core.BlackBox
+  type Param = chisel3.core.Param
+  type IntParam = chisel3.core.IntParam
+  val IntParam = chisel3.core.IntParam
+  type DoubleParam = chisel3.core.DoubleParam
+  val DoubleParam = chisel3.core.DoubleParam
+  type StringParam = chisel3.core.StringParam
+  val StringParam = chisel3.core.StringParam
+  type RawParam = chisel3.core.RawParam
+  val RawParam = chisel3.core.RawParam
 
   val Mem = chisel3.core.Mem
   type MemBase[T <: Data] = chisel3.core.MemBase[T]
@@ -82,6 +91,13 @@ package object chisel3 {    // scalastyle:ignore package.object.name
   type FullName = chisel3.core.FullName
   val FullName = chisel3.core.FullName
   val Percent = chisel3.core.Percent
+
+  // Implicit conversions for BlackBox Parameters
+  implicit def fromIntToIntParam(x: Int): IntParam = IntParam(BigInt(x))
+  implicit def fromLongToIntParam(x: Long): IntParam = IntParam(BigInt(x))
+  implicit def fromBigIntToIntParam(x: BigInt): IntParam = IntParam(x)
+  implicit def fromDoubleToDoubleParam(x: Double): DoubleParam = DoubleParam(x)
+  implicit def fromStringToStringParam(x: String): StringParam = StringParam(x)
 
   /** Implicit for custom Printable string interpolator */
   implicit class PrintableHelper(val sc: StringContext) extends AnyVal {

@@ -45,6 +45,16 @@ private class Emitter(circuit: Circuit) {
     }
   }
 
+  private def emitParam(name: String, p: Param): String = {
+    val str = p match {
+      case IntParam(value) => value.toString
+      case DoubleParam(value) => value.toString
+      case StringParam(str) => "\"" + str + "\""
+      case RawParam(str) => "'" + str + "'"
+    }
+    s"parameter $name = $str"
+  }
+
   // Map of Module FIRRTL definition to FIRRTL name, if it has been emitted already.
   private val defnMap = collection.mutable.HashMap[(String, String), Component]()
 
@@ -64,12 +74,13 @@ private class Emitter(circuit: Circuit) {
         body ++= newline + emitPort(p)
       body ++= newline
 
-      m.id match {
-        case _: BlackBox =>
-          // TODO: BlackBoxes should be empty, but funkiness in Module() means
-          // it's not for now. Eventually, this should assert out.
-        case _: Module => for (cmd <- m.commands) {
-          body ++= newline + emit(cmd, m)
+      m match {
+        case bb: DefBlackBox =>
+          // Firrtl extmodule can overrule name
+          body ++= newline + s"defname = ${bb.id.desiredName}"
+          body ++= newline + (bb.params map { case (n, p) => emitParam(n, p) } mkString newline)
+        case mod: DefModule => for (cmd <- mod.commands) {
+          body ++= newline + emit(cmd, mod)
         }
       }
       body ++= newline
