@@ -1,6 +1,7 @@
 package chisel3.core
 
 import chisel3.internal.Builder.{forcedModule}
+import chisel3.internal.Builder
 
 /**
  * The purpose of a Binding is to indicate what type of hardware 'entity' a
@@ -84,6 +85,7 @@ object Binding {
 
   // Use walkToBinding to actually rebind the node type
   def bind[T<:Data](target: T, binder: Binder[_<:Binding], error_prelude: String): target.type = {
+    Builder.tryCatch {
     try walkToBinding(
       target,
       element => element.binding match {
@@ -98,11 +100,13 @@ object Binding {
     catch {
       case BindingException(message) => throw BindingException(s"$error_prelude$message")
     }
+    }
     target
   }
 
   // Excepts if any root element is already bound
   def checkUnbound(target: Data, error_prelude: String): Unit = {
+    Builder.tryCatch {
     try walkToBinding(
       target,
       element => element.binding match {
@@ -112,6 +116,7 @@ object Binding {
     )
     catch {
       case BindingException(message) => throw BindingException(s"$error_prelude$message")
+    }
     }
   }
 
@@ -138,6 +143,7 @@ object Binding {
         }
       }
     }
+    Builder.tryCatch {
     try walkToBinding(
       target,
       element => element.binding match {
@@ -153,6 +159,7 @@ object Binding {
     )
     catch {
       case BindingException(message) => throw BindingException(s"$error_prelude$message")
+    }
     }
   }
 }

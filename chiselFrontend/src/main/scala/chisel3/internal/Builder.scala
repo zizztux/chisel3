@@ -173,6 +173,11 @@ private[chisel3] object Builder {
 
   def errors: ErrorLog = dynamicContext.errors
   def error(m: => String): Unit = errors.error(m)
+  def tryCatch[R](block: => R): Unit = try {
+    block
+  } catch {
+    case e: Exception => error(e.getMessage)
+  }
 
   def build[T <: Module](f: => T): Circuit = {
     dynamicContextVar.withValue(Some(new DynamicContext())) {

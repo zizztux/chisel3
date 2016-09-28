@@ -3,6 +3,7 @@
 package chisel3.core
 
 import chisel3.internal.Builder.pushCommand
+import chisel3.internal.Builder
 import chisel3.internal.firrtl.Connect
 import scala.language.experimental.macros
 import chisel3.internal.sourceinfo._
@@ -51,6 +52,7 @@ object BiConnect {
   * This gives the user a 'path' to where in the connections things went wrong.
   */
   def connect(sourceInfo: SourceInfo, connectCompileOptions: ExplicitCompileOptions, left: Data, right: Data, context_mod: Module): Unit =
+    Builder.tryCatch {
     (left, right) match {
       // Handle element case (root case)
       case (left_e: Element, right_e: Element) => {
@@ -97,6 +99,7 @@ object BiConnect {
       // Left and right are different subtypes of Data so fail
       case (left, right) => throw MismatchedException(left.toString, right.toString)
     }
+    }
 
   // These functions (finally) issue the connection operation
   // Issue with right as sink, left as source
@@ -112,6 +115,7 @@ object BiConnect {
   // Then it either issues it or throws the appropriate exception.
   def elemConnect(implicit sourceInfo: SourceInfo, connectCompileOptions: ExplicitCompileOptions, left: Element, right: Element, context_mod: Module): Unit = {
     import Direction.{Input, Output} // Using extensively so import these
+    Builder.tryCatch {
     // If left or right have no location, assume in context module
     // This can occur if one of them is a literal, unbound will error previously
     val left_mod: Module  = left.binding.location.getOrElse(context_mod)
@@ -235,5 +239,6 @@ object BiConnect {
     // Not quite sure where left and right are compared to current module
     // so just error out
     else throw UnknownRelationException
+  }
   }
 }

@@ -3,6 +3,7 @@
 package chisel3.core
 
 import chisel3.internal.Builder.pushCommand
+import chisel3.internal.Builder
 import chisel3.internal.firrtl.Connect
 import scala.language.experimental.macros
 import chisel3.internal.sourceinfo.{DeprecatedSourceInfo, SourceInfo, SourceInfoTransform, UnlocatableSourceInfo, WireTransform}
@@ -57,6 +58,7 @@ object MonoConnect {
   * This gives the user a 'path' to where in the connections things went wrong.
   */
   def connect(sourceInfo: SourceInfo, connectCompileOptions: ExplicitCompileOptions, sink: Data, source: Data, context_mod: Module): Unit =
+    Builder.tryCatch {
     (sink, source) match {
       // Handle element case (root case)
       case (sink_e: Element, source_e: Element) => {
@@ -95,6 +97,7 @@ object MonoConnect {
       // Sink and source are different subtypes of data so fail
       case (sink, source) => throw MismatchedException(sink.toString, source.toString)
     }
+    }
 
   // This function (finally) issues the connection operation
   private def issueConnect(sink: Element, source: Element)(implicit sourceInfo: SourceInfo): Unit = {
@@ -105,6 +108,7 @@ object MonoConnect {
   // Then it either issues it or throws the appropriate exception.
   def elemConnect(implicit sourceInfo: SourceInfo, connectCompileOptions: ExplicitCompileOptions, sink: Element, source: Element, context_mod: Module): Unit = {
     import Direction.{Input, Output} // Using extensively so import these
+    Builder.tryCatch {
     // If source has no location, assume in context module
     // This can occur if is a literal, unbound will error previously
     val sink_mod: Module   = sink.binding.location.getOrElse(throw UnwritableSinkException)
@@ -188,5 +192,6 @@ object MonoConnect {
     // Not quite sure where left and right are compared to current module
     // so just error out
     else throw UnknownRelationException
+  }
   }
 }
