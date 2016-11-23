@@ -122,8 +122,8 @@ lazy val chisel = (project in file(".")).
   settings(commonSettings: _*).
   settings(customUnidocSettings: _*).
   settings(chiselSettings: _*).
-  dependsOn(coreMacros % "compile-internal;test-internal").
-  dependsOn(chiselFrontend % "compile-internal;test-internal").
+  dependsOn(coreMacros % "compile;test").
+  dependsOn(chiselFrontend % "compile;test").
   settings(
     aggregate in doc := false,
     // Include macro classes, resources, and sources main jar.
