@@ -8,11 +8,12 @@ package chisel3.util
 import chisel3._
 
 object Log2 {
+  @deprecated("separate the width selection and Log2", "chisel3")
+  def apply(x: Bits, width: Int): UInt = doit(x, width)
+
   /** Returns the base-2 integer logarithm of the least-significant `width` bits of an UInt.
-    *
-    * @note The result is truncated, so e.g. Log2(13.U) === 3.U
     */
-  def apply(x: Bits, width: Int): UInt = {
+  private def doit(x: Bits, width: Int): UInt = {
     if (width < 2) {
       0.U
     } else if (width == 2) {
@@ -27,12 +28,18 @@ object Log2 {
       Cat(useHi, Mux(useHi, Log2(hi, width - mid), Log2(lo, mid)))
     }
   }
-
+  
   /** Returns the base-2 integer logarithm of an UInt.
     *
     * @note The result is truncated, so e.g. Log2(13.U) === 3.U
+    * 
+    * @example {{{
+    * Log2(8.U)  // equivalent to 3.U
+    * Log2(13.U)  // equivalent to 3.U (truncation)
+    * Log2(myUIntWire)
+    * }}}
     */
-  def apply(x: Bits): UInt = apply(x, x.getWidth)
+  def apply(x: Bits): UInt = doit(x, x.getWidth)
 
   private def divideAndConquerThreshold = 4
 }
