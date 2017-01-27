@@ -193,7 +193,7 @@ abstract class Data extends HasId {
       Binding.checkSynthesizable(this, s"'this' ($this)")
       Binding.checkSynthesizable(that, s"'that' ($that)")
       try {
-        MonoConnect.connect(sourceInfo, connectCompileOptions, this, that, Builder.forcedModule)
+        MonoConnect.connect(sourceInfo, connectCompileOptions, this, that, Builder.forcedUserModule)
       } catch {
         case MonoConnect.MonoConnectException(message) =>
           throwException(
@@ -209,7 +209,7 @@ abstract class Data extends HasId {
       Binding.checkSynthesizable(this, s"'this' ($this)")
       Binding.checkSynthesizable(that, s"'that' ($that)")
       try {
-        BiConnect.connect(sourceInfo, connectCompileOptions, this, that, Builder.forcedModule)
+        BiConnect.connect(sourceInfo, connectCompileOptions, this, that, Builder.forcedUserModule)
       } catch {
         case BiConnect.BiConnectException(message) =>
           throwException(
@@ -367,7 +367,7 @@ object Wire {
     val x = t.chiselCloneType
 
     // Bind each element of x to being a Wire
-    Binding.bind(x, WireBinder(Builder.forcedModule), "Error: t")
+    Binding.bind(x, WireBinder(Builder.forcedUserModule), "Error: t")
 
     pushCommand(DefWire(sourceInfo, x))
     pushCommand(DefInvalid(sourceInfo, x.ref))
