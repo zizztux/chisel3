@@ -15,7 +15,7 @@ import chisel3.internal.sourceinfo._
   * of) other Data objects.
   */
 sealed abstract class Aggregate extends Data {
-  private[core] def getElements: Seq[Data]
+  def getElements: Seq[Data]
 
   private[core] def width: Width = getElements.map(_.width).reduce(_ + _)
   private[core] def legacyConnect(that: Data)(implicit sourceInfo: SourceInfo): Unit =
@@ -237,7 +237,7 @@ sealed class Vec[T <: Data] private (gen: => T, val length: Int)
   }
 
   private[chisel3] def toType: String = s"${sample_element.toType}[$length]"
-  private[core] override def getElements: Seq[Data] =
+  override def getElements: Seq[Data] =
     (0 until length).map(apply(_))
 
   for ((elt, i) <- self.zipWithIndex)
@@ -388,7 +388,7 @@ abstract class Record extends Aggregate {
 
   private[chisel3] final def allElements: Seq[Element] = elements.toIndexedSeq.flatMap(_._2.allElements)
 
-  private[chisel3] override def getElements: Seq[Data] = elements.toIndexedSeq.map(_._2)
+  override def getElements: Seq[Data] = elements.toIndexedSeq.map(_._2)
 
   // Helper because Bundle elements are reversed before printing
   private[chisel3] def toPrintableHelper(elts: Seq[(String, Data)]): Printable = {
