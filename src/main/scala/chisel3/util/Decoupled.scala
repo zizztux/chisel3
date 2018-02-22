@@ -85,8 +85,22 @@ class DecoupledIO[+T <: Data](gen: T) extends ReadyValidIO[T](gen)
 /** This factory adds a decoupled handshaking protocol to a data bundle. */
 object Decoupled
 {
+  /** Concrete subclass of [[Bundle]] for constructing empty [[DecoupledIO]] */
+  // This class only exists so that DecoupledIOs with empty Bundles are cloneable
+  final class EmptyBundle extends Bundle {
+    // Weirdly, autoconetype can't figure out the outer object
+    override def cloneType = (new EmptyBundle).asInstanceOf[this.type]
+  }
+
   /** Wraps some Data with a DecoupledIO interface. */
   def apply[T <: Data](gen: T): DecoupledIO[T] = new DecoupledIO(gen)
+
+  // Both of these methods return DeoupledIO type parameterized by Bundle to prevent people from
+  // relying on the type of EmptyBundle
+  /** Returns a [[DecoupledIO]] inteface with no payload */
+  def apply(): DecoupledIO[Bundle] = apply(new EmptyBundle)
+  /** Returns a [[DecoupledIO]] inteface with no payload */
+  def empty: DecoupledIO[Bundle] = Decoupled()
 
   /** Downconverts an IrrevocableIO output to a DecoupledIO, dropping guarantees of irrevocability.
     *
