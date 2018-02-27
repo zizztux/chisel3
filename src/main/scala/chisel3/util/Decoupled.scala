@@ -89,7 +89,7 @@ object Decoupled
   // This class only exists so that DecoupledIOs with empty Bundles are cloneable
   final class EmptyBundle extends Bundle {
     // Weirdly, autoconetype can't figure out the outer object
-    override def cloneType = (new EmptyBundle).asInstanceOf[this.type]
+    //override def cloneType = (new EmptyBundle).asInstanceOf[this.type]
   }
 
   /** Wraps some Data with a DecoupledIO interface. */
